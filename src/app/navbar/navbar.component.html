@@ -1,16 +1,12 @@
-<nav class="navbar">
-  <div class="navbar-left">
-    <span class="navbar-title">💸 Expenses Control</span>
-  </div>
-  <div class="navbar-breadcrumb">
-    <ng-container *ngIf="breadcrumb.length; else home">
-      <ng-container *ngFor="let crumb of breadcrumb; let last = last">
-        <span>{{ crumb }}</span>
-        <span *ngIf="!last"> / </span>
-      </ng-container>
+<mat-toolbar color="primary" class="navbar-toolbar">
+  <span class="navbar-title">💸 Expenses Control</span>
+  <span class="navbar-spacer"></span>
+  <ng-container *ngIf="authChecked">
+    <ng-container *ngIf="isAuthenticated()">
+      <button mat-button [routerLink]="['/dashboard']" routerLinkActive="active">Dashboard</button>
+      <button mat-button [routerLink]="['/expenses']" routerLinkActive="active">Add Expense</button>
+      <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active">Expenses List</button>
     </ng-container>
-    <ng-template #home>
-      <span>Home</span>
-    </ng-template>
-  </div>
-</nav>
+    <button mat-button [routerLink]="['/login']" routerLinkActive="active">Login</button>
+  </ng-container>
+</mat-toolbar>
