@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Auth } from '@angular/fire/auth';
 import { Firestore, collection, addDoc, query, where, getDocs, CollectionReference, DocumentData } from '@angular/fire/firestore';
 import { inject } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
-import { MatCardModule } from '@angular/material/card';
+import { SharedModule } from '../shared.module';
 
 @Component({
   selector: 'app-expenses-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatCardModule],
+  imports: [SharedModule, CommonModule],
   templateUrl: './expenses-list.component.html',
   styleUrl: './expenses-list.component.css'
 })

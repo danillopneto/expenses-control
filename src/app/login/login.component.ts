@@ -3,18 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Auth, signInWithPopup, GoogleAuthProvider, UserCredential } from '@angular/fire/auth';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { SharedModule } from '../shared.module';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule
+    SharedModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'

@@ -4,13 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { inject } from '@angular/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { SharedModule } from '../shared.module';
 
 @Component({
   selector: 'app-expenses',
@@ -19,13 +13,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCardModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule
+    SharedModule
   ],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.css'
