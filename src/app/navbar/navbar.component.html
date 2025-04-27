@@ -1,0 +1,16 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <span class="navbar-title">💸 Expenses Control</span>
+  </div>
+  <div class="navbar-breadcrumb">
+    <ng-container *ngIf="breadcrumb.length; else home">
+      <ng-container *ngFor="let crumb of breadcrumb; let last = last">
+        <span>{{ crumb }}</span>
+        <span *ngIf="!last"> / </span>
+      </ng-container>
+    </ng-container>
+    <ng-template #home>
+      <span>Home</span>
+    </ng-template>
+  </div>
+</nav>
