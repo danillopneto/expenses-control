@@ -1,25 +1,30 @@
 <div class="categories-container">
-  <h2>Manage Categories</h2>
   <form [formGroup]="categoryForm" (ngSubmit)="editingCategory ? updateCategory() : addCategory()">
     <mat-form-field appearance="fill">
       <mat-label>Category Name</mat-label>
       <input matInput formControlName="name" required />
     </mat-form-field>
-    <button mat-raised-button color="primary" type="submit">
-      {{ editingCategory ? 'Update' : 'Add' }} Category
-    </button>
-    <button *ngIf="editingCategory" mat-button type="button" (click)="cancelEdit()">Cancel</button>
+    <div>
+      <button mat-raised-button color="primary" type="submit">
+        {{ editingCategory ? 'Update' : 'Add' }} Category
+      </button>
+      <button *ngIf="editingCategory" mat-button type="button" (click)="cancelEdit()">Cancel</button>
+    </div>
   </form>
 
   <mat-list>
     <mat-list-item *ngFor="let category of categories$ | async">
-      <span>{{ category.name }}</span>
-      <button mat-icon-button color="accent" (click)="editCategory(category)">
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button mat-icon-button color="warn" (click)="deleteCategory(category)">
-        <mat-icon>delete</mat-icon>
-      </button>
+      <div class="item-row">
+        <span class="item-content">{{ category.name }}</span>
+        <span>
+          <button mat-icon-button color="accent" (click)="editCategory(category)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteCategory(category)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </span>
+      </div>
     </mat-list-item>
   </mat-list>
 </div>

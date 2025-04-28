@@ -1,3 +1,11 @@
+.login-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  height: 60vh;
+}
 .login-card {
   max-width: 400px;
   margin: 3rem auto;
@@ -5,6 +13,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: transparent;
+  box-shadow: none;
+  border: none;
 }
 .login-google-btn {
   display: flex;
@@ -20,16 +33,10 @@
   outline: none;
 }
 .google-icon {
-  background: #fff;
-  border-radius: 50%;
-  padding: 0.15rem;
+  /* Remove background and border-radius for a cleaner look */
+  background: none;
+  border-radius: 0;
+  padding: 0;
   width: 1.5rem;
   height: 1.5rem;
-}
-.login-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 250px;
 }

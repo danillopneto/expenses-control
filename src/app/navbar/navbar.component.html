@@ -1,14 +1,20 @@
 <mat-toolbar color="primary" class="navbar-toolbar">
   <span class="navbar-title">💸 Expenses Control</span>
+  <button mat-button [routerLink]="['/dashboard']" routerLinkActive="active">
+    <mat-icon>home</mat-icon> Dashboard
+  </button>
   <span class="navbar-spacer"></span>
   <ng-container *ngIf="authChecked">
     <ng-container *ngIf="isAuthenticated()">
-      <button mat-button [routerLink]="['/dashboard']" routerLinkActive="active">Dashboard</button>
-      <button mat-button [routerLink]="['/expenses']" routerLinkActive="active">Add Expense</button>
-      <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active">Expenses List</button>
-      <button mat-button [routerLink]="['/categories']" routerLinkActive="active">Categories</button>
-      <button mat-button [routerLink]="['/accounts']" routerLinkActive="active">Accounts</button>
+      <button mat-button [routerLink]="['/expenses']" routerLinkActive="active">
+        <mat-icon>add_circle</mat-icon> Add Expense
+      </button>
+      <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active">
+        <mat-icon>list_alt</mat-icon> Expenses List
+      </button>
+      <button mat-button [routerLink]="['/settings']" routerLinkActive="active">
+        <mat-icon>settings</mat-icon> Settings
+      </button>
     </ng-container>
-    <button mat-button [routerLink]="['/login']" routerLinkActive="active">Login</button>
   </ng-container>
 </mat-toolbar>
