@@ -20,11 +20,11 @@
     </ng-container>
     <ng-container matColumnDef="category">
       <th mat-header-cell *matHeaderCellDef>Category</th>
-      <td mat-cell *matCellDef="let expense">{{ expense.category }}</td>
+      <td mat-cell *matCellDef="let expense">{{ categoriesMap[expense.category] || expense.category }}</td>
     </ng-container>
     <ng-container matColumnDef="accountUsed">
       <th mat-header-cell *matHeaderCellDef>Account Used</th>
-      <td mat-cell *matCellDef="let expense">{{ expense.accountUsed }}</td>
+      <td mat-cell *matCellDef="let expense">{{ accountsMap[expense.accountUsed] || expense.accountUsed }}</td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="['date', 'description', 'value', 'place', 'category', 'accountUsed']"></tr>
     <tr mat-row *matRowDef="let row; columns: ['date', 'description', 'value', 'place', 'category', 'accountUsed'];"></tr>

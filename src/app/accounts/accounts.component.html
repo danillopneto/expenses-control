@@ -1,0 +1,25 @@
+<div class="accounts-container">
+  <h2>Manage Accounts</h2>
+  <form [formGroup]="accountForm" (ngSubmit)="editingAccount ? updateAccount() : addAccount()">
+    <mat-form-field appearance="fill">
+      <mat-label>Account Name</mat-label>
+      <input matInput formControlName="name" required />
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit">
+      {{ editingAccount ? 'Update' : 'Add' }} Account
+    </button>
+    <button *ngIf="editingAccount" mat-button type="button" (click)="cancelEdit()">Cancel</button>
+  </form>
+
+  <mat-list>
+    <mat-list-item *ngFor="let account of accounts$ | async">
+      <span>{{ account.name }}</span>
+      <button mat-icon-button color="accent" (click)="editAccount(account)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="deleteAccount(account)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+</div>
