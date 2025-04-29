@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared.module';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { FirebaseService } from '../shared/firebase.service';
 
 interface Category {
   id?: string;
@@ -24,7 +25,7 @@ export class CategoriesComponent implements OnInit {
   categories$: Observable<Category[]>;
   editingCategory: Category | null = null;
 
-  constructor(private fb: FormBuilder, private firestore: Firestore) {
+  constructor(private fb: FormBuilder, private firestore: Firestore, private firebaseService: FirebaseService) {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required]
     });
@@ -47,8 +48,7 @@ export class CategoriesComponent implements OnInit {
         alert('Category already exists!');
         return;
       }
-      const categoriesRef = collection(this.firestore, 'categories');
-      await addDoc(categoriesRef, { name });
+      await this.firebaseService.add('categories', { name });
       this.categoryForm.reset();
     }
   }
@@ -60,16 +60,14 @@ export class CategoriesComponent implements OnInit {
 
   async updateCategory() {
     if (this.editingCategory && this.categoryForm.valid) {
-      const categoryDoc = doc(this.firestore, 'categories', this.editingCategory.id!);
-      await updateDoc(categoryDoc, { name: this.categoryForm.value.name });
+      await this.firebaseService.update('categories', this.editingCategory.id!, { name: this.categoryForm.value.name });
       this.editingCategory = null;
       this.categoryForm.reset();
     }
   }
 
   async deleteCategory(category: Category) {
-    const categoryDoc = doc(this.firestore, 'categories', category.id!);
-    await deleteDoc(categoryDoc);
+    await this.firebaseService.delete('categories', category.id!);
     if (this.editingCategory?.id === category.id) {
       this.editingCategory = null;
       this.categoryForm.reset();

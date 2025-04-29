@@ -5,6 +5,8 @@ import { Auth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SharedModule } from '../shared.module';
+import { LoadingService } from '../shared/loading.service';
+import { FirebaseService } from '../shared/firebase.service';
 
 interface Category {
   id?: string;
@@ -33,7 +35,8 @@ export class ExpensesComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private firestore: Firestore,
-    private auth: Auth
+    private auth: Auth,
+    private firebaseService: FirebaseService
   ) {
     this.expenseForm = this.fb.group({
       date: [null, Validators.required],
@@ -71,7 +74,7 @@ export class ExpensesComponent implements OnInit {
         uid: user.uid,
         createdAt: new Date().toISOString()
       };
-      await addDoc(collection(this.firestore, 'expenses'), expense);
+      await this.firebaseService.add('expenses', expense);
       this.expenseForm.reset();
       alert('Expense added!');
     }

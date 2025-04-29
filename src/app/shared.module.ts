@@ -10,6 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { LoadingSpinnerComponent } from './shared/loading-spinner.component';
 
 @NgModule({
   imports: [
@@ -25,6 +26,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatNativeDateModule,
     MatListModule,
     MatIconModule
+  ],
+  declarations: [
   ],
   exports: [
     CommonModule,

@@ -5,6 +5,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared.module';
+import { FirebaseService } from '../shared/firebase.service';
 
 interface Account {
   id?: string;
@@ -23,7 +24,7 @@ export class AccountsComponent implements OnInit {
   accounts$: Observable<Account[]>;
   editingAccount: Account | null = null;
 
-  constructor(private fb: FormBuilder, private firestore: Firestore) {
+  constructor(private fb: FormBuilder, private firestore: Firestore, private firebaseService: FirebaseService) {
     this.accountForm = this.fb.group({
       name: ['', Validators.required]
     });
@@ -45,8 +46,7 @@ export class AccountsComponent implements OnInit {
         alert('Account already exists!');
         return;
       }
-      const accountsRef = collection(this.firestore, 'accounts');
-      await addDoc(accountsRef, { name });
+      await this.firebaseService.add('accounts', { name });
       this.accountForm.reset();
     }
   }
@@ -58,16 +58,14 @@ export class AccountsComponent implements OnInit {
 
   async updateAccount() {
     if (this.editingAccount && this.accountForm.valid) {
-      const accountDoc = doc(this.firestore, 'accounts', this.editingAccount.id!);
-      await updateDoc(accountDoc, { name: this.accountForm.value.name });
+      await this.firebaseService.update('accounts', this.editingAccount.id!, { name: this.accountForm.value.name });
       this.editingAccount = null;
       this.accountForm.reset();
     }
   }
 
   async deleteAccount(account: Account) {
-    const accountDoc = doc(this.firestore, 'accounts', account.id!);
-    await deleteDoc(accountDoc);
+    await this.firebaseService.delete('accounts', account.id!);
     if (this.editingAccount?.id === account.id) {
       this.editingAccount = null;
       this.accountForm.reset();

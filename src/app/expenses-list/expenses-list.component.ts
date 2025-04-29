@@ -6,6 +6,7 @@ import { inject } from '@angular/core';
 import { SharedModule } from '../shared.module';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
+import { FirebaseService } from '../shared/firebase.service';
 
 @Component({
   selector: 'app-expenses-list',
@@ -22,7 +23,7 @@ export class ExpensesListComponent implements OnInit {
   categoriesMap: Record<string, string> = {};
   accountsMap: Record<string, string> = {};
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private firebaseService: FirebaseService) {
   }
 
   async ngOnInit() {
@@ -38,9 +39,7 @@ export class ExpensesListComponent implements OnInit {
     this.categoriesMap = Object.fromEntries(categories.map((c: any) => [c.id, c.name]));
     this.accountsMap = Object.fromEntries(accounts.map((a: any) => [a.id, a.name]));
 
-    const expensesRef = collection(this.firestore, 'expenses') as CollectionReference<DocumentData>;
-    const q = query(expensesRef, where('uid', '==', user.uid));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await this.firebaseService.getWhere('expenses', 'uid', '==', user.uid);
     this.expenses = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     this.loading = false;
   }
