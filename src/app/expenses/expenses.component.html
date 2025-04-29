@@ -1,16 +1,16 @@
 <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="expense-form">
   <mat-form-field appearance="outline" class="expense-field">
-    <mat-label>Date</mat-label>
+    <mat-label>{{ 'EXPENSES.DATE' | translate }}</mat-label>
     <input matInput [matDatepicker]="picker" formControlName="date" required />
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-datepicker #picker></mat-datepicker>
   </mat-form-field>
   <mat-form-field appearance="outline" class="expense-field">
-    <mat-label>Description</mat-label>
+    <mat-label>{{ 'EXPENSES.DESCRIPTION' | translate }}</mat-label>
     <input matInput type="text" formControlName="description" required />
   </mat-form-field>
   <mat-form-field appearance="outline" class="expense-field">
-    <mat-label>Value</mat-label>
+    <mat-label>{{ 'EXPENSES.VALUE' | translate }}</mat-label>
     <input
       matInput
       type="number"
@@ -20,11 +20,11 @@
     />
   </mat-form-field>
   <mat-form-field appearance="outline" class="expense-field">
-    <mat-label>Place</mat-label>
+    <mat-label>{{ 'EXPENSES.PLACE' | translate }}</mat-label>
     <input matInput type="text" formControlName="place" required />
   </mat-form-field>
   <mat-form-field appearance="outline">
-    <mat-label>Category</mat-label>
+    <mat-label>{{ 'EXPENSES.CATEGORY' | translate }}</mat-label>
     <mat-select formControlName="category" required>
       <mat-option
         *ngFor="let category of categories$ | async"
@@ -35,7 +35,7 @@
     </mat-select>
   </mat-form-field>
   <mat-form-field appearance="outline" class="expense-field">
-    <mat-label>Account Used</mat-label>
+    <mat-label>{{ 'EXPENSES.ACCOUNT_USED' | translate }}</mat-label>
     <mat-select formControlName="accountUsed" required>
       <mat-option *ngFor="let acc of accounts$ | async" [value]="acc.id">{{
         acc.name
@@ -49,7 +49,7 @@
       type="submit"
       [disabled]="!expenseForm.valid"
     >
-      Add Expense
+      {{ 'EXPENSES.ADD_EXPENSE' | translate }}
     </button>
   </div>
 </form>

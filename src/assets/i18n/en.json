@@ -1,0 +1,43 @@
+{
+  "NAV": {
+    "DASHBOARD": "Dashboard",
+    "ADD_EXPENSE": "Add Expense",
+    "EXPENSES_LIST": "Expenses List",
+    "SETTINGS": "Settings"
+  },
+  "EXPENSES": {
+    "DATE": "Date",
+    "DESCRIPTION": "Description",
+    "VALUE": "Value",
+    "PLACE": "Place",
+    "CATEGORY": "Category",
+    "ACCOUNT_USED": "Account Used",
+    "ADD_EXPENSE": "Add Expense"
+  },
+  "CATEGORIES": {
+    "CATEGORY_NAME": "Category Name",
+    "ADD": "Add Category",
+    "UPDATE": "Update Category",
+    "CANCEL": "Cancel"
+  },
+  "ACCOUNTS": {
+    "ACCOUNT_NAME": "Account Name",
+    "ADD": "Add Account",
+    "UPDATE": "Update Account",
+    "CANCEL": "Cancel"
+  },
+  "LOGIN": {
+    "SIGN_IN_GOOGLE": "Sign in with Google"
+  },
+  "SETTINGS": {
+    "CATEGORIES": "Categories",
+    "ACCOUNTS": "Accounts"
+  },
+  "EXPENSES_LIST": {
+    "LOADING": "Loading expenses...",
+    "NO_EXPENSES": "No expenses found."
+  },
+  "DASHBOARD": {
+    "WELCOME": "Welcome {{name}}"
+  }
+}

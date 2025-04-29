@@ -1,20 +1,29 @@
 <mat-toolbar color="primary" class="navbar-toolbar">
   <span class="navbar-title">💸 Expenses Control</span>
   <button mat-button [routerLink]="['/dashboard']" routerLinkActive="active">
-    <mat-icon>home</mat-icon> Dashboard
+    <mat-icon>home</mat-icon> {{ 'NAV.DASHBOARD' | translate }}
   </button>
   <span class="navbar-spacer"></span>
   <ng-container *ngIf="authChecked">
     <ng-container *ngIf="isAuthenticated()">
       <button mat-button [routerLink]="['/expenses']" routerLinkActive="active">
-        <mat-icon>add_circle</mat-icon> Add Expense
+        <mat-icon>add_circle</mat-icon> {{ 'NAV.ADD_EXPENSE' | translate }}
       </button>
       <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active">
-        <mat-icon>list_alt</mat-icon> Expenses List
+        <mat-icon>list_alt</mat-icon> {{ 'NAV.EXPENSES_LIST' | translate }}
       </button>
       <button mat-button [routerLink]="['/settings']" routerLinkActive="active">
-        <mat-icon>settings</mat-icon> Settings
+        <mat-icon>settings</mat-icon> {{ 'NAV.SETTINGS' | translate }}
       </button>
     </ng-container>
   </ng-container>
+  <mat-menu #langMenu="matMenu">
+    <button mat-menu-item *ngFor="let lang of languages" (click)="changeLang(lang.code)">
+      <span>{{ lang.flag }}</span> <span style="margin-left: 8px">{{ lang.label }}</span>
+    </button>
+  </mat-menu>
+  <button mat-icon-button [matMenuTriggerFor]="langMenu" aria-label="Language selector">
+    <span *ngIf="selectedLang === 'en'">🇺🇸</span>
+    <span *ngIf="selectedLang === 'pt'">🇧🇷</span>
+  </button>
 </mat-toolbar>

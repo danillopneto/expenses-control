@@ -1,0 +1,43 @@
+{
+  "NAV": {
+    "DASHBOARD": "Início",
+    "ADD_EXPENSE": "Adicionar Despesa",
+    "EXPENSES_LIST": "Lista de Despesas",
+    "SETTINGS": "Configurações"
+  },
+  "EXPENSES": {
+    "DATE": "Data",
+    "DESCRIPTION": "Descrição",
+    "VALUE": "Valor",
+    "PLACE": "Local",
+    "CATEGORY": "Categoria",
+    "ACCOUNT_USED": "Conta Utilizada",
+    "ADD_EXPENSE": "Adicionar Despesa"
+  },
+  "CATEGORIES": {
+    "CATEGORY_NAME": "Nome da Categoria",
+    "ADD": "Adicionar Categoria",
+    "UPDATE": "Atualizar Categoria",
+    "CANCEL": "Cancelar"
+  },
+  "ACCOUNTS": {
+    "ACCOUNT_NAME": "Nome da Conta",
+    "ADD": "Adicionar Conta",
+    "UPDATE": "Atualizar Conta",
+    "CANCEL": "Cancelar"
+  },
+  "LOGIN": {
+    "SIGN_IN_GOOGLE": "Entrar com Google"
+  },
+  "SETTINGS": {
+    "CATEGORIES": "Categorias",
+    "ACCOUNTS": "Contas"
+  },
+  "EXPENSES_LIST": {
+    "LOADING": "Carregando despesas...",
+    "NO_EXPENSES": "Nenhuma despesa encontrada."
+  },
+  "DASHBOARD": {
+    "WELCOME": "Bem-vindo {{name}}"
+  }
+}

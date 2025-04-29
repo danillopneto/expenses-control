@@ -11,6 +11,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { LoadingSpinnerComponent } from './shared/loading-spinner.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -25,7 +26,8 @@ import { LoadingSpinnerComponent } from './shared/loading-spinner.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatListModule,
-    MatIconModule
+    MatIconModule,
+    TranslateModule
   ],
   declarations: [
   ],
@@ -41,7 +43,8 @@ import { LoadingSpinnerComponent } from './shared/loading-spinner.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatListModule,
-    MatIconModule
+    MatIconModule,
+    TranslateModule
   ]
 })
 export class SharedModule {}
