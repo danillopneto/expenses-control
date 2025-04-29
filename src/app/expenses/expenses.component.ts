@@ -23,7 +23,7 @@ interface Account {
     SharedModule
   ],
   templateUrl: './expenses.component.html',
-  styleUrl: './expenses.component.css'
+  styleUrls: ['./expenses.component.scss']
 })
 export class ExpensesComponent implements OnInit {
   expenseForm: FormGroup;

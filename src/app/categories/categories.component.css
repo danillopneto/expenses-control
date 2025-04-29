@@ -1,4 +1,0 @@
-@import '../shared/styles/common-list.css';
-.accounts-container {
-  composes: common-list-container;
-}

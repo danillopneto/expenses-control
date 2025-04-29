@@ -9,6 +9,6 @@ import { AccountsComponent } from '../accounts/accounts.component';
   standalone: true,
   imports: [CommonModule, MatTabsModule, CategoriesComponent, AccountsComponent],
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.css']
+  styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent {}

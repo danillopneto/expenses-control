@@ -12,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
   standalone: true,
   imports: [SharedModule, CommonModule, MatTableModule],
   templateUrl: './expenses-list.component.html',
-  styleUrl: './expenses-list.component.css'
+  styleUrls: ['./expenses-list.component.scss']
 })
 export class ExpensesListComponent implements OnInit {
   private auth = inject(Auth);

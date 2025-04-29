@@ -12,7 +12,7 @@ import { SharedModule } from '../shared.module';
     CommonModule
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
   private auth = inject(Auth);

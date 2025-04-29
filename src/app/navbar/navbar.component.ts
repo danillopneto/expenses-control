@@ -20,7 +20,7 @@ import { RouterModule } from '@angular/router';
     RouterModule
   ],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
   auth = inject(Auth);

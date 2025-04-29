@@ -16,7 +16,7 @@ interface Account {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, SharedModule],
   templateUrl: './accounts.component.html',
-  styleUrls: ['./accounts.component.css']
+  styleUrls: ['./accounts.component.scss']
 })
 export class AccountsComponent implements OnInit {
   accountForm: FormGroup;

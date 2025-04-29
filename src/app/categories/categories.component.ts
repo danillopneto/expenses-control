@@ -17,7 +17,7 @@ interface Category {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, SharedModule],
   templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.css']
+  styleUrls: ['./categories.component.scss']
 })
 export class CategoriesComponent implements OnInit {
   categoryForm: FormGroup;

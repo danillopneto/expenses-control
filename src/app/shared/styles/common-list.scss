@@ -1,3 +1,4 @@
+/* Common styles for categories and accounts lists */
 .common-list-container {
   max-width: 1000px;
   min-width: 320px;
@@ -31,4 +32,7 @@ button[mat-icon-button] {
 }
 form {
   padding-top: 20px;
+}
+.full-width {
+  width: 100%;
 }

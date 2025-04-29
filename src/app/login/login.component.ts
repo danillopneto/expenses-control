@@ -13,11 +13,24 @@ import { SharedModule } from '../shared.module';
     SharedModule
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   private auth = inject(Auth);
   private router = inject(Router);
+
+  constructor() {
+    // Redirect to dashboard if already authenticated
+    if (this.auth.currentUser) {
+      this.router.navigate(['/dashboard']);
+    } else {
+      this.auth.onAuthStateChanged((user) => {
+        if (user) {
+          this.router.navigate(['/dashboard']);
+        }
+      });
+    }
+  }
 
   async signInWithGoogle() {
     const provider = new GoogleAuthProvider();
