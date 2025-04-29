@@ -3,7 +3,8 @@
     "DASHBOARD": "Dashboard",
     "ADD_EXPENSE": "Add Expense",
     "EXPENSES_LIST": "Expenses List",
-    "SETTINGS": "Settings"
+    "SETTINGS": "Settings",
+    "APP_TITLE": "Expenses Control"
   },
   "EXPENSES": {
     "DATE": "Date",

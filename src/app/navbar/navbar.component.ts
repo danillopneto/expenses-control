@@ -36,6 +36,7 @@ export class NavbarComponent {
     { code: 'pt', label: 'Português', flag: '🇧🇷' }
   ];
   selectedLang = 'en';
+  appTitle = '';
   constructor(private translate: TranslateService) {
     this.auth.onAuthStateChanged(() => {
       this.authChecked = true;
@@ -46,6 +47,17 @@ export class NavbarComponent {
     const browserLang = this.translate.getBrowserLang() || 'en';
     this.selectedLang = (browserLang && ['en', 'pt'].includes(browserLang)) ? browserLang : 'en';
     this.translate.use(this.selectedLang);
+    this.translate.onLangChange.subscribe(event => {
+      this.updateTitles();
+    });
+    this.updateTitles();
+  }
+
+  updateTitles() {
+    this.translate.get('NAV.APP_TITLE').subscribe((title: string) => {
+      document.title = title;
+      this.appTitle = title;
+    });
   }
   isAuthenticated() {
     return !!this.auth.currentUser;

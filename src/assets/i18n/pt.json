@@ -3,7 +3,8 @@
     "DASHBOARD": "Início",
     "ADD_EXPENSE": "Adicionar Despesa",
     "EXPENSES_LIST": "Lista de Despesas",
-    "SETTINGS": "Configurações"
+    "SETTINGS": "Configurações",
+    "APP_TITLE": "Controle de Despesas"
   },
   "EXPENSES": {
     "DATE": "Data",
