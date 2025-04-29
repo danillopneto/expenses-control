@@ -19,11 +19,11 @@
   </ng-container>
   <mat-menu #langMenu="matMenu">
     <button mat-menu-item *ngFor="let lang of languages" (click)="changeLang(lang.code)">
-      <span>{{ lang.flag }}</span> <span style="margin-left: 8px">{{ lang.label }}</span>
+      <img [src]="lang.code === 'en' ? 'assets/flags/us.svg' : 'assets/flags/br.svg'" width="24" height="16" style="vertical-align:middle;"> <span style="margin-left: 8px">{{ lang.label }}</span>
     </button>
   </mat-menu>
   <button mat-icon-button [matMenuTriggerFor]="langMenu" aria-label="Language selector">
-    <span *ngIf="selectedLang === 'en'">🇺🇸</span>
-    <span *ngIf="selectedLang === 'pt'">🇧🇷</span>
+    <img *ngIf="selectedLang === 'en'" src="assets/flags/us.svg" width="24" height="16" style="vertical-align:middle;">
+    <img *ngIf="selectedLang === 'pt'" src="assets/flags/br.svg" width="24" height="16" style="vertical-align:middle;">
   </button>
 </mat-toolbar>

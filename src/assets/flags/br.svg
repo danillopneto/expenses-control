@@ -1,0 +1,8 @@
+<!-- Brazil flag SVG from Wikimedia Commons, public domain -->
+<svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-br" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#009b3a"/>
+  <polygon points="320,80 608,240 320,400 32,240" fill="#ffdf00"/>
+  <circle cx="320" cy="240" r="96" fill="#3e4095"/>
+  <path d="M 230 260 Q 320 200 410 260" stroke="#fff" stroke-width="15" fill="none"/>
+  <text x="320" y="250" font-size="32" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">ORDEM E PROGRESSO</text>
+</svg>

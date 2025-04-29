@@ -1,0 +1,35 @@
+<!-- United States flag SVG, simplified and compatible -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7410 3900">
+  <rect width="7410" height="3900" fill="#b22234"/>
+  <g fill="#fff">
+    <rect y="300" width="7410" height="300"/>
+    <rect y="900" width="7410" height="300"/>
+    <rect y="1500" width="7410" height="300"/>
+    <rect y="2100" width="7410" height="300"/>
+    <rect y="2700" width="7410" height="300"/>
+    <rect y="3300" width="7410" height="300"/>
+  </g>
+  <rect width="2964" height="2100" fill="#3c3b6e"/>
+  <g fill="#fff">
+    <g id="s">
+      <g id="r">
+        <polygon points="247,90 104,90 82,0 60,90 -83,90 44,146 0,236 82,180 164,236 120,146"/>
+      </g>
+      <use href="#r" x="247"/>
+      <use href="#r" x="494"/>
+      <use href="#r" x="741"/>
+      <use href="#r" x="988"/>
+      <use href="#r" x="1235"/>
+      <use href="#r" x="1482"/>
+    </g>
+    <use href="#s" y="210" />
+    <use href="#s" y="420" />
+    <use href="#s" y="630" />
+    <use href="#s" y="840" />
+    <use href="#s" y="1050" />
+    <use href="#s" y="1260" />
+    <use href="#s" y="1470" />
+    <use href="#s" y="1680" />
+    <use href="#s" y="1890" />
+  </g>
+</svg>
