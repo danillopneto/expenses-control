@@ -1,29 +1,43 @@
 <mat-toolbar color="primary" class="navbar-toolbar">
   <span class="navbar-title">💸 {{ appTitle }}</span>
-  <button mat-button [routerLink]="['/dashboard']" routerLinkActive="active">
-    <mat-icon>home</mat-icon> {{ 'NAV.DASHBOARD' | translate }}
+  <button mat-icon-button class="navbar-menu-btn" (click)="toggleMenu()" aria-label="Toggle menu">
+    <mat-icon>{{ menuOpen ? 'close' : 'menu' }}</mat-icon>
   </button>
-  <span class="navbar-spacer"></span>
-  <ng-container *ngIf="authChecked">
-    <ng-container *ngIf="isAuthenticated()">
-      <button mat-button [routerLink]="['/expenses']" routerLinkActive="active">
-        <mat-icon>add_circle</mat-icon> {{ 'NAV.ADD_EXPENSE' | translate }}
-      </button>
-      <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active">
-        <mat-icon>list_alt</mat-icon> {{ 'NAV.EXPENSES_LIST' | translate }}
-      </button>
-      <button mat-button [routerLink]="['/settings']" routerLinkActive="active">
-        <mat-icon>settings</mat-icon> {{ 'NAV.SETTINGS' | translate }}
+  <div class="navbar-links" [class.open]="menuOpen">
+    <ng-container *ngIf="authChecked && isAuthenticated()">
+      <button mat-button [routerLink]="['/dashboard']" routerLinkActive="active" (click)="menuOpen = false">
+        <mat-icon>home</mat-icon> {{ 'NAV.DASHBOARD' | translate }}
       </button>
     </ng-container>
-  </ng-container>
-  <mat-menu #langMenu="matMenu">
-    <button mat-menu-item *ngFor="let lang of languages" (click)="changeLang(lang.code)">
-      <img [src]="lang.code === 'en' ? 'assets/flags/us.svg' : 'assets/flags/br.svg'" width="24" height="16" style="vertical-align:middle;"> <span style="margin-left: 8px">{{ lang.label }}</span>
-    </button>
-  </mat-menu>
-  <button mat-icon-button [matMenuTriggerFor]="langMenu" aria-label="Language selector">
-    <img *ngIf="selectedLang === 'en'" src="assets/flags/us.svg" width="24" height="16" style="vertical-align:middle;">
-    <img *ngIf="selectedLang === 'pt'" src="assets/flags/br.svg" width="24" height="16" style="vertical-align:middle;">
-  </button>
+    <div class="navbar-spacer"></div>
+    <div class="navbar-actions">
+      <ng-container *ngIf="authChecked">
+        <ng-container *ngIf="isAuthenticated()">
+          <button mat-button [routerLink]="['/expenses']" routerLinkActive="active" (click)="menuOpen = false">
+            <mat-icon>add_circle</mat-icon> {{ 'NAV.ADD_EXPENSE' | translate }}
+          </button>
+          <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active" (click)="menuOpen = false">
+            <mat-icon>list_alt</mat-icon> {{ 'NAV.EXPENSES_LIST' | translate }}
+          </button>
+          <button mat-button [routerLink]="['/settings']" routerLinkActive="active" (click)="menuOpen = false">
+            <mat-icon>settings</mat-icon> {{ 'NAV.SETTINGS' | translate }}
+          </button>
+        </ng-container>
+        <ng-container *ngIf="isAuthenticated()">
+          <button mat-button color="warn" (click)="logout(); menuOpen = false">
+            <mat-icon>logout</mat-icon> {{ 'NAV.LOGOUT' | translate }}
+          </button>
+        </ng-container>
+      </ng-container>
+      <mat-menu #langMenu="matMenu">
+        <button mat-menu-item *ngFor="let lang of languages" (click)="changeLang(lang.code)">
+          <img [src]="lang.code === 'en' ? 'assets/flags/us.svg' : 'assets/flags/br.svg'" width="24" height="16" style="vertical-align:middle;"> <span style="margin-left: 8px">{{ lang.label }}</span>
+        </button>
+      </mat-menu>
+      <button mat-icon-button [matMenuTriggerFor]="langMenu" aria-label="Language selector">
+        <img *ngIf="selectedLang === 'en'" src="assets/flags/us.svg" width="24" height="16" style="vertical-align:middle;">
+        <img *ngIf="selectedLang === 'pt'" src="assets/flags/br.svg" width="24" height="16" style="vertical-align:middle;">
+      </button>
+    </div>
+  </div>
 </mat-toolbar>

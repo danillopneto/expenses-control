@@ -11,3 +11,48 @@
 .navbar-spacer {
   flex: 1 1 auto;
 }
+.navbar-menu-btn {
+  display: none;
+}
+.navbar-links {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.navbar-actions {
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .navbar-menu-btn {
+    display: block;
+    margin-left: auto;
+  }
+  .navbar-links {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    width: 100%;
+    background: #1976d2;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem 0;
+    display: none;
+    z-index: 200;
+  }
+  .navbar-links.open {
+    display: flex;
+  }
+  .navbar-links button, .navbar-links .navbar-spacer, .navbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin: 0.2rem 0;
+  }
+  .navbar-spacer {
+    display: none;
+  }
+  .navbar-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -4,7 +4,8 @@
     "ADD_EXPENSE": "Add Expense",
     "EXPENSES_LIST": "Expenses List",
     "SETTINGS": "Settings",
-    "APP_TITLE": "Expenses Control"
+    "APP_TITLE": "Expenses Control",
+    "LOGOUT": "Logout"
   },
   "EXPENSES": {
     "DATE": "Date",

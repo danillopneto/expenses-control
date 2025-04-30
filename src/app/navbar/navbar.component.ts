@@ -37,6 +37,7 @@ export class NavbarComponent {
   ];
   selectedLang = 'en';
   appTitle = '';
+  menuOpen = false;
   constructor(private translate: TranslateService) {
     this.auth.onAuthStateChanged(() => {
       this.authChecked = true;
@@ -55,7 +56,9 @@ export class NavbarComponent {
 
   updateTitles() {
     this.translate.get('NAV.APP_TITLE').subscribe((title: string) => {
-      document.title = title;
+      if (typeof document !== 'undefined') {
+        document.title = title;
+      }
       this.appTitle = title;
     });
   }
@@ -65,5 +68,13 @@ export class NavbarComponent {
   changeLang(lang: string) {
     this.selectedLang = lang;
     this.translate.use(lang);
+  }
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+  async logout() {
+    await this.auth.signOut();
+    // Redirect to login page after logout
+    window.location.href = '/login';
   }
 }

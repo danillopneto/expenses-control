@@ -4,7 +4,8 @@
     "ADD_EXPENSE": "Adicionar Despesa",
     "EXPENSES_LIST": "Lista de Despesas",
     "SETTINGS": "Configurações",
-    "APP_TITLE": "Controle de Despesas"
+    "APP_TITLE": "Controle de Despesas",
+    "LOGOUT": "Sair"
   },
   "EXPENSES": {
     "DATE": "Data",
