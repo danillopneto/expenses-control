@@ -1,0 +1,42 @@
+.add-row-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+.submit-all-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.expense-table-field {
+  width: 100%;
+  margin: 0;
+  min-width: 0;
+  .mat-form-field-wrapper {
+    padding-bottom: 0;
+  }
+  .mat-form-field-flex {
+    min-height: 32px;
+    height: 32px;
+    font-size: 0.95em;
+  }
+  .mat-input-element, .mat-select {
+    padding: 0 4px;
+    font-size: 0.95em;
+    height: 24px;
+    min-height: 24px;
+  }
+}
+
+.mat-cell, .mat-header-cell {
+  padding: 4px 8px;
+  vertical-align: middle;
+}
+
+.expenses-table-container {
+  padding-top: 16px;
+}
