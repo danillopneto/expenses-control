@@ -1,0 +1,42 @@
+.filter-container {
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 1rem;
+  background: #fff;
+}
+
+.filter-container.collapsed .filter-form {
+  display: none;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+
+mat-form-field {
+  min-width: 180px;
+  flex: 1 1 220px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95em;
+}
+
+button {
+  margin-left: 1rem;
+}
+
+// Removed all custom button styles to allow Material defaults

@@ -1,6 +1,12 @@
-<mat-card class="expenses-list-card" style="overflow-x:auto; max-width:100%;">
+<div class="expenses-list-card" style="overflow-x:auto; max-width:100%;">
   <div *ngIf="loading">{{ 'EXPENSES_LIST.LOADING' | translate }}</div>
   <div *ngIf="!loading && expenses.length === 0">{{ 'EXPENSES_LIST.NO_EXPENSES' | translate }}</div>
+  <app-expenses-filter
+    [categories]="route.snapshot.data['categories'] || []"
+    [accounts]="route.snapshot.data['accounts'] || []"
+    (filterChange)="onFilterChange($event)"
+    style="display:block; margin-bottom: 2rem;">
+  </app-expenses-filter>
   <ag-grid-angular
     *ngIf="!loading && expenses.length > 0"
     class="ag-theme-alpine"
@@ -12,4 +18,4 @@
     (gridReady)="onGridReady($event)"
     (cellClicked)="onCellClicked($event)">
   </ag-grid-angular>
-</mat-card>
+</div>

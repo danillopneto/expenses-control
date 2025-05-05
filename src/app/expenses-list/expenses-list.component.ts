@@ -10,28 +10,44 @@ import { FirebaseService } from '../shared/firebase.service';
 import { ColDef } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
 import { TranslateService } from '@ngx-translate/core';
+import { ExpensesFilterComponent } from '../expenses-filter/expenses-filter.component';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+
+interface Expense {
+  id: string;
+  date?: string;
+  description?: string;
+  value?: number;
+  installments?: number;
+  place?: string;
+  category?: string;
+  accountUsed?: string;
+  [key: string]: any;
+}
 
 @Component({
   selector: 'app-expenses-list',
   standalone: true,
-  imports: [SharedModule, CommonModule, MatTableModule, AgGridModule],
+  imports: [SharedModule, CommonModule, MatTableModule, AgGridModule, ExpensesFilterComponent, ReactiveFormsModule],
   templateUrl: './expenses-list.component.html',
   styleUrls: ['./expenses-list.component.scss']
 })
 export class ExpensesListComponent implements OnInit {
   private auth = inject(Auth);
   private firestore = inject(Firestore);
-  expenses: any[] = [];
+  expenses: Expense[] = [];
+  allExpenses: Expense[] = [];
   loading = true;
   categoriesMap: Record<string, string> = {};
   accountsMap: Record<string, string> = {};
   gridApi: any;
+  filter: any = {};
 
   columnDefs: ColDef[] = [];
   defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
 
   constructor(
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
     private firebaseService: FirebaseService,
     public translate: TranslateService
   ) {}
@@ -57,7 +73,8 @@ export class ExpensesListComponent implements OnInit {
     const expensesRef = collection(this.firestore, `users/${user.uid}/expenses`);
     const q = query(expensesRef, orderBy('date', 'desc'));
     const querySnapshot = await getDocs(q);
-    this.expenses = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    this.allExpenses = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    this.expenses = [...this.allExpenses];
     this.loading = false;
   }
 
@@ -140,5 +157,46 @@ export class ExpensesListComponent implements OnInit {
     if (event.colDef.field === 'actions') {
       this.onDeleteExpense(event.data);
     }
+  }
+
+  async onFilterChange(filter: any) {
+    this.filter = filter;
+    await this.queryExpensesWithFilter();
+  }
+
+  async queryExpensesWithFilter() {
+    const user = this.auth.currentUser;
+    if (!user) return;
+    this.loading = true;
+    let expensesRef = collection(this.firestore, `users/${user.uid}/expenses`);
+    let q: any = [];
+    // Firestore can only filter on indexed fields and equality/range, so we use 'where' for those
+    if (this.filter.dateFrom) {
+      q.push(where('date', '>=', this.filter.dateFrom));
+    }
+    if (this.filter.dateTo) {
+      q.push(where('date', '<=', this.filter.dateTo));
+    }
+    if (this.filter.category) {
+      q.push(where('category', '==', this.filter.category));
+    }
+    if (this.filter.accountUsed) {
+      q.push(where('accountUsed', '==', this.filter.accountUsed));
+    }
+    // Always order by date desc
+    q.push(orderBy('date', 'desc'));
+    // Build query
+    let queryRef = q.length ? query(expensesRef, ...q) : expensesRef;
+    const querySnapshot = await getDocs(queryRef);
+    let results: Expense[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // In-memory filter for description/place (contains)
+    if (this.filter.description) {
+      results = results.filter(e => e.description?.toLowerCase().includes(this.filter.description.toLowerCase()));
+    }
+    if (this.filter.place) {
+      results = results.filter(e => e.place?.toLowerCase().includes(this.filter.place.toLowerCase()));
+    }
+    this.expenses = results;
+    this.loading = false;
   }
 }
