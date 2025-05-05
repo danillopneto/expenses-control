@@ -19,6 +19,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { DatepickerCellEditor } from './datepicker-cell-editor.component';
 import { NumericCellEditor } from './numeric-cell-editor.component';
 import { TranslateService } from '@ngx-translate/core';
+import { ColDef } from 'ag-grid-community';
 
 interface Category {
   id?: string;
@@ -61,60 +62,7 @@ export class ExpensesComponent implements OnInit {
   selectedExpenseIndex = 0;
   gridApi: any;
 
-  columnDefs = [
-    {
-      headerName: 'Date',
-      field: 'date',
-      editable: true,
-      cellEditor: DatepickerCellEditor,
-      valueFormatter: (params: any) => {
-        if (!params.value) return '';
-        const lang = this.translate?.currentLang || 'en';
-        const date = new Date(params.value);
-        if (isNaN(date.getTime())) return params.value;
-        return new Intl.DateTimeFormat(lang).format(date);
-      }
-    },
-    { headerName: 'Description', field: 'description', editable: true },
-    { headerName: 'Value', field: 'value', editable: true, type: 'numericColumn',
-      cellEditor: NumericCellEditor,
-      valueParser: (params: any) => {
-        const lang = this.translate?.currentLang || 'en';
-        let value = params.newValue;
-        // Handle decimal separator for pt (comma) and en (dot)
-        if (lang === 'pt') {
-          value = value.replace(',', '.');
-        }
-        const num = parseFloat(value);
-        return isNaN(num) ? params.oldValue : num;
-      },
-      valueFormatter: (params: any) => {
-        const lang = this.translate?.currentLang || 'en';
-        if (params.value == null || params.value === '') return '';
-        return new Intl.NumberFormat(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(params.value);
-      }
-    },
-    { headerName: 'Place', field: 'place', editable: true },
-    { headerName: 'Category', field: 'category', editable: true, cellEditor: 'agSelectCellEditor',
-      cellEditorParams: () => ({ values: this.categoriesList.map(c => c.id) }),
-      valueFormatter: (params: any) => {
-        const match = this.categoriesList.find(c => c.id === params.value);
-        return match ? match.name : params.value;
-      }
-    },
-    { headerName: 'Account', field: 'accountUsed', editable: true, cellEditor: 'agSelectCellEditor',
-      cellEditorParams: () => ({ values: this.accountsList.map(a => a.id) }),
-      valueFormatter: (params: any) => {
-        const match = this.accountsList.find(a => a.id === params.value);
-        return match ? match.name : params.value;
-      }
-    },
-    { headerName: 'Actions', field: 'actions', cellRenderer: (params: any) => `
-      <button class="mat-icon-button mat-warn" data-action="delete" title="Delete" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;">
-        <span class="material-icons" style="color:#f44336;">delete</span>
-      </button>
-    `, editable: false }
-  ];
+  columnDefs: ColDef[] = [];
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
   constructor(
@@ -150,14 +98,74 @@ export class ExpensesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Optionally, start with one empty row
     this.addExpense();
-    // Refresh date column when language changes
+    this.setColumnDefs();
     this.translate.onLangChange.subscribe(() => {
       if (this.gridApi) {
         this.gridApi.refreshCells({ columns: ['date'], force: true });
+        this.setColumnDefs();
       }
     });
+  }
+
+  setColumnDefs() {
+    const defs: ColDef[] = [
+      {
+        headerName: this.translate.instant('EXPENSES.DATE'),
+        field: 'date',
+        editable: true,
+        cellEditor: DatepickerCellEditor,
+        valueFormatter: (params: any) => {
+          if (!params.value) return '';
+          const lang = this.translate?.currentLang || 'en';
+          const date = new Date(params.value);
+          if (isNaN(date.getTime())) return params.value;
+          return new Intl.DateTimeFormat(lang).format(date);
+        }
+      },
+      { headerName: this.translate.instant('EXPENSES.DESCRIPTION'), field: 'description', editable: true },
+      { headerName: this.translate.instant('EXPENSES.VALUE'), field: 'value', editable: true, type: 'numericColumn',
+        cellEditor: NumericCellEditor,
+        valueParser: (params: any) => {
+          const lang = this.translate?.currentLang || 'en';
+          let value = params.newValue;
+          if (lang === 'pt') {
+            value = value.replace(',', '.');
+          }
+          const num = parseFloat(value);
+          return isNaN(num) ? params.oldValue : num;
+        },
+        valueFormatter: (params: any) => {
+          const lang = this.translate?.currentLang || 'en';
+          if (params.value == null || params.value === '') return '';
+          return new Intl.NumberFormat(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(params.value);
+        }
+      },
+      { headerName: this.translate.instant('EXPENSES.PLACE'), field: 'place', editable: true },
+      { headerName: this.translate.instant('EXPENSES.CATEGORY'), field: 'category', editable: true, cellEditor: 'agSelectCellEditor',
+        cellEditorParams: () => ({ values: this.categoriesList.map(c => c.id) }),
+        valueFormatter: (params: any) => {
+          const match = this.categoriesList.find(c => c.id === params.value);
+          return match ? match.name : params.value;
+        }
+      },
+      { headerName: this.translate.instant('EXPENSES.ACCOUNT_USED'), field: 'accountUsed', editable: true, cellEditor: 'agSelectCellEditor',
+        cellEditorParams: () => ({ values: this.accountsList.map(a => a.id) }),
+        valueFormatter: (params: any) => {
+          const match = this.accountsList.find(a => a.id === params.value);
+          return match ? match.name : params.value;
+        }
+      },
+      { headerName: '', field: 'actions', cellRenderer: (params: any) => `
+        <button class="mat-icon-button mat-warn" data-action="delete" title="Delete" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;">
+          <span class="material-icons" style="color:#f44336;">delete</span>
+        </button>
+      `, editable: false }
+    ];
+    this.columnDefs = defs;
+    if (this.gridApi) {
+      this.gridApi.setColumnDefs(this.columnDefs);
+    }
   }
 
   get expenses() {
