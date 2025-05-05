@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
 import { Firestore, collection, addDoc, collectionData } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SharedModule } from '../shared.module';
 import { LoadingService } from '../shared/loading.service';
@@ -52,8 +52,8 @@ interface Account {
 })
 export class ExpensesComponent implements OnInit {
   expenseForm: FormGroup;
-  categories$: Observable<Category[]>;
-  accounts$: Observable<Account[]>;
+  categories$: Observable<Category[]> = of([]);
+  accounts$: Observable<Account[]> = of([]);
   private expensesSubject = new BehaviorSubject<any[]>([]);
   expenses$: Observable<any[]> = this.expensesSubject.asObservable();
   displayedColumns: string[] = ['date', 'description', 'value', 'installments', 'place', 'category', 'accountUsed', 'actions'];
@@ -68,6 +68,7 @@ export class ExpensesComponent implements OnInit {
   @ViewChild('pasteArea') pasteArea!: ElementRef<HTMLTextAreaElement>;
 
   showPasteArea = false;
+  userId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -84,24 +85,23 @@ export class ExpensesComponent implements OnInit {
       category: ['', Validators.required],
       accountUsed: ['', Validators.required]
     });
-
-    // Fetch categories from Firestore
-    const categoriesRef = collection(this.firestore, 'categories');
-    this.categories$ = collectionData(categoriesRef, { idField: 'id' }).pipe(
-      map(categories => (categories as Category[]).sort((a, b) => a.name.localeCompare(b.name)))
-    );
-
-    // Fetch accounts from Firestore
-    const accountsRef = collection(this.firestore, 'accounts');
-    this.accounts$ = collectionData(accountsRef, { idField: 'id' }).pipe(
-      map(accounts => (accounts as Account[]).sort((a, b) => a.name.localeCompare(b.name)))
-    );
-
-    this.categories$.subscribe(list => this.categoriesList = list);
-    this.accounts$.subscribe(list => this.accountsList = list);
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    const user = this.auth.currentUser;
+    this.userId = user ? user.uid : null;
+    if (this.userId) {
+      const categoriesRef = collection(this.firestore, `users/${this.userId}/categories`);
+      this.categories$ = collectionData(categoriesRef, { idField: 'id' }).pipe(
+        map(categories => (categories as Category[]).sort((a, b) => a.name.localeCompare(b.name)))
+      );
+      const accountsRef = collection(this.firestore, `users/${this.userId}/accounts`);
+      this.accounts$ = collectionData(accountsRef, { idField: 'id' }).pipe(
+        map(accounts => (accounts as Account[]).sort((a, b) => a.name.localeCompare(b.name)))
+      );
+      this.categories$.subscribe(list => this.categoriesList = list);
+      this.accounts$.subscribe(list => this.accountsList = list);
+    }
     this.addExpense();
     this.setColumnDefs();
     this.translate.onLangChange.subscribe(() => {
@@ -251,7 +251,7 @@ export class ExpensesComponent implements OnInit {
       createdAt: new Date().toISOString()
     }));
     try {
-      await Promise.all(batch.map(exp => this.firebaseService.add('expenses', exp)));
+      await Promise.all(batch.map(exp => this.firebaseService.addForUser(user.uid, 'expenses', exp)));
       this.expenses = [];
       this.addExpense();
       alert('Expenses added!');

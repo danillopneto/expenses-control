@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Firestore, collection, addDoc, updateDoc, deleteDoc, doc, collectionData } from '@angular/fire/firestore';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Observable, of, firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared.module';
 import { FirebaseService } from '../shared/firebase.service';
+import { Auth } from '@angular/fire/auth';
 
 interface Account {
   id?: string;
@@ -21,24 +22,31 @@ interface Account {
 })
 export class AccountsComponent implements OnInit {
   accountForm: FormGroup;
-  accounts$: Observable<Account[]>;
+  accounts$: Observable<Account[]> = of([]);
   editingAccount: Account | null = null;
+  private auth = inject(Auth);
+  userId: string | null = null;
 
   constructor(private fb: FormBuilder, private firestore: Firestore, private firebaseService: FirebaseService) {
     this.accountForm = this.fb.group({
       name: ['', Validators.required]
     });
-    const accountsRef = collection(this.firestore, 'accounts');
-    this.accounts$ = collectionData(accountsRef, { idField: 'id' }) as Observable<Account[]>;
-    this.accounts$ = this.accounts$.pipe(
-      map(accounts => accounts.sort((a, b) => a.name.localeCompare(b.name)))
-    );
   }
 
-  ngOnInit(): void {}
+  async ngOnInit() {
+    const user = this.auth.currentUser;
+    this.userId = user ? user.uid : null;
+    if (this.userId) {
+      const accountsRef = collection(this.firestore, `users/${this.userId}/accounts`);
+      this.accounts$ = collectionData(accountsRef, { idField: 'id' }) as Observable<Account[]>;
+      this.accounts$ = this.accounts$.pipe(
+        map(accounts => accounts.sort((a, b) => a.name.localeCompare(b.name)))
+      );
+    }
+  }
 
   async addAccount() {
-    if (this.accountForm.valid) {
+    if (this.accountForm.valid && this.userId) {
       const name = this.accountForm.value.name.trim();
       if (!name) return;
       const accounts = await firstValueFrom(this.accounts$);
@@ -46,7 +54,7 @@ export class AccountsComponent implements OnInit {
         alert('Account already exists!');
         return;
       }
-      await this.firebaseService.add('accounts', { name });
+      await this.firebaseService.addForUser(this.userId, 'accounts', { name });
       this.accountForm.reset();
     }
   }
@@ -57,18 +65,20 @@ export class AccountsComponent implements OnInit {
   }
 
   async updateAccount() {
-    if (this.editingAccount && this.accountForm.valid) {
-      await this.firebaseService.update('accounts', this.editingAccount.id!, { name: this.accountForm.value.name });
+    if (this.editingAccount && this.accountForm.valid && this.userId) {
+      await this.firebaseService.updateForUser(this.userId, 'accounts', this.editingAccount.id!, { name: this.accountForm.value.name });
       this.editingAccount = null;
       this.accountForm.reset();
     }
   }
 
   async deleteAccount(account: Account) {
-    await this.firebaseService.delete('accounts', account.id!);
-    if (this.editingAccount?.id === account.id) {
-      this.editingAccount = null;
-      this.accountForm.reset();
+    if (this.userId) {
+      await this.firebaseService.deleteForUser(this.userId, 'accounts', account.id!);
+      if (this.editingAccount?.id === account.id) {
+        this.editingAccount = null;
+        this.accountForm.reset();
+      }
     }
   }
 

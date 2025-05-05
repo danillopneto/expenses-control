@@ -1,32 +1,13 @@
 <mat-card class="expenses-list-card">
   <div *ngIf="loading">{{ 'EXPENSES_LIST.LOADING' | translate }}</div>
   <div *ngIf="!loading && expenses.length === 0">{{ 'EXPENSES_LIST.NO_EXPENSES' | translate }}</div>
-  <table mat-table [dataSource]="expenses" class="mat-elevation-z2" *ngIf="!loading && expenses.length > 0">
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef>{{ 'EXPENSES.DATE' | translate }}</th>
-      <td mat-cell *matCellDef="let expense">{{ expense.date }}</td>
-    </ng-container>
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef>{{ 'EXPENSES.DESCRIPTION' | translate }}</th>
-      <td mat-cell *matCellDef="let expense">{{ expense.description }}</td>
-    </ng-container>
-    <ng-container matColumnDef="value">
-      <th mat-header-cell *matHeaderCellDef>{{ 'EXPENSES.VALUE' | translate }}</th>
-      <td mat-cell *matCellDef="let expense">{{ expense.value }}</td>
-    </ng-container>
-    <ng-container matColumnDef="place">
-      <th mat-header-cell *matHeaderCellDef>{{ 'EXPENSES.PLACE' | translate }}</th>
-      <td mat-cell *matCellDef="let expense">{{ expense.place }}</td>
-    </ng-container>
-    <ng-container matColumnDef="category">
-      <th mat-header-cell *matHeaderCellDef>{{ 'EXPENSES.CATEGORY' | translate }}</th>
-      <td mat-cell *matCellDef="let expense">{{ categoriesMap[expense.category] || expense.category }}</td>
-    </ng-container>
-    <ng-container matColumnDef="accountUsed">
-      <th mat-header-cell *matHeaderCellDef>{{ 'EXPENSES.ACCOUNT_USED' | translate }}</th>
-      <td mat-cell *matCellDef="let expense">{{ accountsMap[expense.accountUsed] || expense.accountUsed }}</td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="['date', 'description', 'value', 'place', 'category', 'accountUsed']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['date', 'description', 'value', 'place', 'category', 'accountUsed'];"></tr>
-  </table>
+  <ag-grid-angular
+    *ngIf="!loading && expenses.length > 0"
+    class="ag-theme-alpine"
+    style="width: 100%; height: 500px;"
+    [rowData]="expenses"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [domLayout]="'autoHeight'">
+  </ag-grid-angular>
 </mat-card>
