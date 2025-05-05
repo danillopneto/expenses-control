@@ -40,3 +40,33 @@
 .expenses-table-container {
   padding-top: 16px;
 }
+
+.actions-cell {
+  padding-top: 22px;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .expenses-table {
+    display: none !important;
+  }
+  .expense-card {
+    display: block;
+    margin: 0 auto 16px auto;
+    max-width: 98vw;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    padding: 1rem 0.5rem;
+  }
+  .card-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+}

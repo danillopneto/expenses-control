@@ -1,5 +1,6 @@
 <div class="expenses-table-container">
-  <table mat-table [dataSource]="expenses" class="mat-elevation-z2">
+  <!-- Desktop/tablet table view -->
+  <table mat-table [dataSource]="expenses" class="mat-elevation-z2 expenses-table" *ngIf="!isMobile()">
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef>Date</th>
       <td mat-cell *matCellDef="let expense; let i = index">
@@ -63,6 +64,49 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+
+  <!-- Mobile card view -->
+  <mat-card class="expense-card" *ngIf="isMobile() && expenses.length > 0">
+    <div class="card-fields">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Date</mat-label>
+        <input matInput [matDatepicker]="picker" [(ngModel)]="expenses[selectedExpenseIndex].date" name="date-mobile" required />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Description</mat-label>
+        <input matInput type="text" [(ngModel)]="expenses[selectedExpenseIndex].description" name="description-mobile" required />
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Value</mat-label>
+        <input matInput type="number" step="0.01" [(ngModel)]="expenses[selectedExpenseIndex].value" name="value-mobile" required />
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Place</mat-label>
+        <input matInput type="text" [(ngModel)]="expenses[selectedExpenseIndex].place" name="place-mobile" required />
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="expenses[selectedExpenseIndex].category" name="category-mobile" required>
+          <mat-option *ngFor="let category of categories$ | async" [value]="category.id">{{ category.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Account</mat-label>
+        <mat-select [(ngModel)]="expenses[selectedExpenseIndex].accountUsed" name="accountUsed-mobile" required>
+          <mat-option *ngFor="let acc of accounts$ | async" [value]="acc.id">{{ acc.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="card-actions">
+      <button mat-icon-button color="warn" (click)="removeExpense(selectedExpenseIndex)"><mat-icon>delete</mat-icon></button>
+      <button mat-icon-button (click)="prevExpense()" [disabled]="selectedExpenseIndex === 0"><mat-icon>chevron_left</mat-icon></button>
+      <span>{{ selectedExpenseIndex + 1 }} / {{ expenses.length }}</span>
+      <button mat-icon-button (click)="nextExpense()" [disabled]="selectedExpenseIndex === expenses.length - 1"><mat-icon>chevron_right</mat-icon></button>
+    </div>
+  </mat-card>
+
   <div class="add-row-container">
     <button mat-raised-button color="primary" (click)="addExpense()">Add Row</button>
   </div>

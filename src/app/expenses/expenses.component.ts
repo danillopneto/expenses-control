@@ -49,6 +49,7 @@ export class ExpensesComponent implements OnInit {
   displayedColumns: string[] = ['date', 'description', 'value', 'place', 'category', 'accountUsed', 'actions'];
   categoriesList: Category[] = [];
   accountsList: Account[] = [];
+  selectedExpenseIndex = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -94,6 +95,22 @@ export class ExpensesComponent implements OnInit {
     this.expensesSubject.next(val);
   }
 
+  isMobile(): boolean {
+    return window.innerWidth <= 600;
+  }
+
+  prevExpense() {
+    if (this.selectedExpenseIndex > 0) {
+      this.selectedExpenseIndex--;
+    }
+  }
+
+  nextExpense() {
+    if (this.selectedExpenseIndex < this.expenses.length - 1) {
+      this.selectedExpenseIndex++;
+    }
+  }
+
   addExpense() {
     const updated = [...this.expenses, {
       date: '',
@@ -104,12 +121,16 @@ export class ExpensesComponent implements OnInit {
       accountUsed: ''
     }];
     this.expenses = updated;
+    this.selectedExpenseIndex = this.expenses.length - 1;
   }
 
   removeExpense(index: number) {
     const updated = this.expenses.slice();
     updated.splice(index, 1);
     this.expenses = updated;
+    if (this.selectedExpenseIndex >= this.expenses.length) {
+      this.selectedExpenseIndex = Math.max(0, this.expenses.length - 1);
+    }
   }
 
   async onSubmit() {
