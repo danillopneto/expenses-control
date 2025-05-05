@@ -25,6 +25,7 @@ export class ExpensesListComponent implements OnInit {
   loading = true;
   categoriesMap: Record<string, string> = {};
   accountsMap: Record<string, string> = {};
+  gridApi: any;
 
   columnDefs: ColDef[] = [];
   defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
@@ -58,6 +59,15 @@ export class ExpensesListComponent implements OnInit {
     const querySnapshot = await getDocs(q);
     this.expenses = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     this.loading = false;
+  }
+
+  async onDeleteExpense(expense: any) {
+    const user = this.auth.currentUser;
+    if (!user) return;
+    if (!expense.id) return;
+    if (!confirm(this.translate.instant('Are you sure you want to delete this expense?'))) return;
+    await this.firebaseService.deleteForUser(user.uid, 'expenses', expense.id);
+    this.expenses = this.expenses.filter(e => e.id !== expense.id);
   }
 
   setColumnDefs() {
@@ -104,7 +114,31 @@ export class ExpensesListComponent implements OnInit {
         headerName: this.translate.instant('EXPENSES.ACCOUNT_USED'),
         field: 'accountUsed',
         valueFormatter: (params: any) => this.accountsMap[params.value] || params.value
+      },
+      {
+        headerName: '',
+        field: 'actions',
+        cellRenderer: (params: any) => `
+          <button class="mat-icon-button mat-warn" title="Delete" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;" data-action="delete">
+            <span class="material-icons" style="color:#f44336;">delete</span>
+          </button>
+        `,
+        width: 60,
+        suppressMenu: true,
+        sortable: false,
+        filter: false,
+        cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' }
       }
     ];
+  }
+
+  onGridReady(params: any) {
+    this.gridApi = params.api;
+  }
+
+  onCellClicked(event: any) {
+    if (event.colDef.field === 'actions') {
+      this.onDeleteExpense(event.data);
+    }
   }
 }

@@ -63,7 +63,7 @@ export class ExpensesComponent implements OnInit {
   gridApi: any;
 
   columnDefs: ColDef[] = [];
-  defaultColDef = { resizable: true, sortable: true, filter: true };
+  defaultColDef = { resizable: true, sortable: true };
 
   @ViewChild('pasteArea') pasteArea!: ElementRef<HTMLTextAreaElement>;
 

@@ -1,13 +1,15 @@
-<mat-card class="expenses-list-card">
+<mat-card class="expenses-list-card" style="overflow-x:auto; max-width:100%;">
   <div *ngIf="loading">{{ 'EXPENSES_LIST.LOADING' | translate }}</div>
   <div *ngIf="!loading && expenses.length === 0">{{ 'EXPENSES_LIST.NO_EXPENSES' | translate }}</div>
   <ag-grid-angular
     *ngIf="!loading && expenses.length > 0"
     class="ag-theme-alpine"
-    style="width: 100%; height: 500px;"
+    style="width:100%; max-width:100%;"
     [rowData]="expenses"
     [columnDefs]="columnDefs"
     [defaultColDef]="defaultColDef"
-    [domLayout]="'autoHeight'">
+    [domLayout]="'autoHeight'"
+    (gridReady)="onGridReady($event)"
+    (cellClicked)="onCellClicked($event)">
   </ag-grid-angular>
 </mat-card>
