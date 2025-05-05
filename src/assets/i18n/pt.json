@@ -15,7 +15,8 @@
     "CATEGORY": "Categoria",
     "ACCOUNT_USED": "Conta Utilizada",
     "ADD_EXPENSE": "Adicionar Despesa",
-    "INSTALLMENTS": "Parcelas"
+    "INSTALLMENTS": "Parcelas",
+    "PASTE": "Colar"
   },
   "CATEGORIES": {
     "CATEGORY_NAME": "Nome da Categoria",

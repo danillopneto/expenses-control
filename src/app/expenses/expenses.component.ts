@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
 import { Firestore, collection, addDoc, collectionData } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
@@ -64,6 +64,10 @@ export class ExpensesComponent implements OnInit {
 
   columnDefs: ColDef[] = [];
   defaultColDef = { resizable: true, sortable: true, filter: true };
+
+  @ViewChild('pasteArea') pasteArea!: ElementRef<HTMLTextAreaElement>;
+
+  showPasteArea = false;
 
   constructor(
     private fb: FormBuilder,
@@ -262,8 +266,10 @@ export class ExpensesComponent implements OnInit {
     const pastedText = clipboardData.getData('text');
     const rows = pastedText.split(/\r?\n/).filter(row => row.trim() !== '');
     const newExpenses = rows.map(row => {
-      const cols = row.split(/\t|,/); // Support tab or comma separated
-      // Map category and account names to IDs
+      const cols = row.split(/\t|,/);
+      // Clean value: remove currency, spaces, and convert comma to dot
+      let value = (cols[2] || '').replace(/[^\d,.-]/g, '').replace(',', '.').trim();
+      if (value.endsWith('.')) value = value.slice(0, -1);
       const categoryName = (cols[5] || '').trim();
       const accountName = (cols[6] || '').trim();
       const categoryObj = this.categoriesList.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
@@ -271,15 +277,19 @@ export class ExpensesComponent implements OnInit {
       return {
         date: cols[0] || '',
         description: cols[1] || '',
-        value: cols[2] || '',
+        value,
         installments: cols[3] ? parseInt(cols[3], 10) || 1 : 1,
         place: cols[4] || '',
         category: categoryObj ? categoryObj.id : '',
         accountUsed: accountObj ? accountObj.id : ''
       };
     });
-    this.expenses = [...this.expenses, ...newExpenses]; // trigger table update
+    this.expenses = [...this.expenses, ...newExpenses];
     event.preventDefault();
+  }
+
+  focusPasteArea() {
+    setTimeout(() => this.pasteArea?.nativeElement.focus(), 0);
   }
 
   onCellValueChanged(event: any) {
