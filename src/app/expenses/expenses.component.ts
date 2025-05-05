@@ -13,6 +13,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { AgGridModule } from 'ag-grid-angular';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { DatepickerCellEditor } from './datepicker-cell-editor.component';
+import { TranslateService } from '@ngx-translate/core';
 
 interface Category {
   id?: string;
@@ -35,7 +40,9 @@ interface Account {
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    FormsModule
+    FormsModule,
+    AgGridModule,
+    DatepickerCellEditor
   ],
   templateUrl: './expenses.component.html',
   styleUrls: ['./expenses.component.scss']
@@ -50,12 +57,53 @@ export class ExpensesComponent implements OnInit {
   categoriesList: Category[] = [];
   accountsList: Account[] = [];
   selectedExpenseIndex = 0;
+  gridApi: any;
+
+  columnDefs = [
+    {
+      headerName: 'Date',
+      field: 'date',
+      editable: true,
+      cellEditor: DatepickerCellEditor,
+      valueFormatter: (params: any) => {
+        if (!params.value) return '';
+        const lang = this.translate?.currentLang || 'en';
+        const date = new Date(params.value);
+        if (isNaN(date.getTime())) return params.value;
+        return new Intl.DateTimeFormat(lang).format(date);
+      }
+    },
+    { headerName: 'Description', field: 'description', editable: true },
+    { headerName: 'Value', field: 'value', editable: true, type: 'numericColumn' },
+    { headerName: 'Place', field: 'place', editable: true },
+    { headerName: 'Category', field: 'category', editable: true, cellEditor: 'agSelectCellEditor',
+      cellEditorParams: () => ({ values: this.categoriesList.map(c => c.id) }),
+      valueFormatter: (params: any) => {
+        const match = this.categoriesList.find(c => c.id === params.value);
+        return match ? match.name : params.value;
+      }
+    },
+    { headerName: 'Account', field: 'accountUsed', editable: true, cellEditor: 'agSelectCellEditor',
+      cellEditorParams: () => ({ values: this.accountsList.map(a => a.id) }),
+      valueFormatter: (params: any) => {
+        const match = this.accountsList.find(a => a.id === params.value);
+        return match ? match.name : params.value;
+      }
+    },
+    { headerName: 'Actions', field: 'actions', cellRenderer: (params: any) => `
+      <button class="mat-icon-button mat-warn" data-action="delete" title="Delete" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;">
+        <span class="material-icons" style="color:#f44336;">delete</span>
+      </button>
+    `, editable: false }
+  ];
+  defaultColDef = { resizable: true, sortable: true, filter: true };
 
   constructor(
     private fb: FormBuilder,
     private firestore: Firestore,
     private auth: Auth,
-    private firebaseService: FirebaseService
+    private firebaseService: FirebaseService,
+    public translate: TranslateService
   ) {
     this.expenseForm = this.fb.group({
       date: [null, Validators.required],
@@ -85,6 +133,12 @@ export class ExpensesComponent implements OnInit {
   ngOnInit(): void {
     // Optionally, start with one empty row
     this.addExpense();
+    // Refresh date column when language changes
+    this.translate.onLangChange.subscribe(() => {
+      if (this.gridApi) {
+        this.gridApi.refreshCells({ columns: ['date'], force: true });
+      }
+    });
   }
 
   get expenses() {
@@ -185,5 +239,27 @@ export class ExpensesComponent implements OnInit {
     });
     this.expenses = [...this.expenses, ...newExpenses]; // trigger table update
     event.preventDefault();
+  }
+
+  onCellValueChanged(event: any) {
+    // Update the expenses array with the new value
+    const updated = [...this.expenses];
+    updated[event.rowIndex] = event.data;
+    this.expenses = updated;
+  }
+
+  onCellClicked(event: any) {
+    const target = event.event?.target;
+    if (
+      event.colDef.field === 'actions' &&
+      (target?.getAttribute('data-action') === 'delete' ||
+       target?.parentElement?.getAttribute('data-action') === 'delete')
+    ) {
+      this.removeExpense(event.rowIndex);
+    }
+  }
+
+  onGridReady(params: any) {
+    this.gridApi = params.api;
   }
 }

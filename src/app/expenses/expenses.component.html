@@ -1,69 +1,17 @@
 <div class="expenses-table-container">
-  <!-- Desktop/tablet table view -->
-  <table mat-table [dataSource]="expenses" class="mat-elevation-z2 expenses-table" *ngIf="!isMobile()">
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let expense; let i = index">
-        <mat-form-field appearance="fill" class="full-width">
-          <input matInput [matDatepicker]="picker" [(ngModel)]="expenses[i].date" name="date-{{i}}" required />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef>Description</th>
-      <td mat-cell *matCellDef="let expense; let i = index">
-        <mat-form-field appearance="fill" class="full-width">
-          <input matInput type="text" [(ngModel)]="expenses[i].description" name="description-{{i}}" required />
-        </mat-form-field>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="value">
-      <th mat-header-cell *matHeaderCellDef>Value</th>
-      <td mat-cell *matCellDef="let expense; let i = index">
-        <mat-form-field appearance="fill" class="full-width">
-          <input matInput type="number" step="0.01" [(ngModel)]="expenses[i].value" name="value-{{i}}" required />
-        </mat-form-field>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="place">
-      <th mat-header-cell *matHeaderCellDef>Place</th>
-      <td mat-cell *matCellDef="let expense; let i = index">
-        <mat-form-field appearance="fill" class="full-width">
-          <input matInput type="text" [(ngModel)]="expenses[i].place" name="place-{{i}}" required />
-        </mat-form-field>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="category">
-      <th mat-header-cell *matHeaderCellDef>Category</th>
-      <td mat-cell *matCellDef="let expense; let i = index">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-select [(ngModel)]="expenses[i].category" name="category-{{i}}" required>
-            <mat-option *ngFor="let category of categories$ | async" [value]="category.id">{{ category.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="accountUsed">
-      <th mat-header-cell *matHeaderCellDef>Account</th>
-      <td mat-cell *matCellDef="let expense; let i = index">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-select [(ngModel)]="expenses[i].accountUsed" name="accountUsed-{{i}}" required>
-            <mat-option *ngFor="let acc of accounts$ | async" [value]="acc.id">{{ acc.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let expense; let i = index">
-        <button mat-icon-button color="warn" (click)="removeExpense(i)"><mat-icon>delete</mat-icon></button>
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+  <!-- Desktop/tablet AG Grid view -->
+  <ag-grid-angular
+    class="ag-theme-alpine expenses-table"
+    *ngIf="!isMobile()"
+    [rowData]="expenses"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [animateRows]="true"
+    [domLayout]="'autoHeight'"
+    (cellValueChanged)="onCellValueChanged($event)"
+    (gridReady)="onGridReady($event)"
+    (cellClicked)="onCellClicked($event)">
+  </ag-grid-angular>
 
   <!-- Mobile card view -->
   <mat-card class="expense-card" *ngIf="isMobile() && expenses.length > 0">
