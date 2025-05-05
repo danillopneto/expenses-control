@@ -3,6 +3,7 @@
   display: flex;
   justify-content: flex-end;
   padding-top: 16px;
+  margin: 18px 0 0 0;
 }
 
 .submit-all-container {
@@ -10,6 +11,7 @@
   display: flex;
   justify-content: center;
   margin-top: 32px;
+  margin: 18px 0 0 0;
 }
 
 .expense-table-field {
@@ -38,7 +40,9 @@
 }
 
 .expenses-table-container {
-  padding-top: 16px;
+  padding: 24px 8px 32px 8px;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .actions-cell {
@@ -47,26 +51,46 @@
   align-items: center;
 }
 
-@media (max-width: 600px) {
-  .expenses-table {
-    display: none !important;
-  }
-  .expense-card {
-    display: block;
-    margin: 0 auto 16px auto;
-    max-width: 98vw;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    padding: 1rem 0.5rem;
-  }
-  .card-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .card-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-  }
+.ag-theme-alpine.expenses-table {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  font-size: 15px;
+  background: #fff;
+}
+
+.ag-theme-alpine .ag-header-cell-label {
+  justify-content: center;
+}
+
+.ag-theme-alpine .ag-cell {
+  padding: 6px 8px;
+  align-items: center;
+}
+
+.ag-theme-alpine .ag-cell[col-id="actions"] {
+  text-align: center;
+}
+
+.ag-theme-alpine .mat-icon-button {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 2px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.ag-theme-alpine .mat-icon-button:hover {
+  background: #ffeaea;
+}
+
+.ag-theme-alpine .material-icons {
+  font-size: 22px;
+  color: #f44336;
 }

@@ -17,6 +17,7 @@ import { AgGridModule } from 'ag-grid-angular';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { DatepickerCellEditor } from './datepicker-cell-editor.component';
+import { NumericCellEditor } from './numeric-cell-editor.component';
 import { TranslateService } from '@ngx-translate/core';
 
 interface Category {
@@ -42,7 +43,8 @@ interface Account {
     MatIconModule,
     FormsModule,
     AgGridModule,
-    DatepickerCellEditor
+    DatepickerCellEditor,
+    NumericCellEditor
   ],
   templateUrl: './expenses.component.html',
   styleUrls: ['./expenses.component.scss']
@@ -74,7 +76,24 @@ export class ExpensesComponent implements OnInit {
       }
     },
     { headerName: 'Description', field: 'description', editable: true },
-    { headerName: 'Value', field: 'value', editable: true, type: 'numericColumn' },
+    { headerName: 'Value', field: 'value', editable: true, type: 'numericColumn',
+      cellEditor: NumericCellEditor,
+      valueParser: (params: any) => {
+        const lang = this.translate?.currentLang || 'en';
+        let value = params.newValue;
+        // Handle decimal separator for pt (comma) and en (dot)
+        if (lang === 'pt') {
+          value = value.replace(',', '.');
+        }
+        const num = parseFloat(value);
+        return isNaN(num) ? params.oldValue : num;
+      },
+      valueFormatter: (params: any) => {
+        const lang = this.translate?.currentLang || 'en';
+        if (params.value == null || params.value === '') return '';
+        return new Intl.NumberFormat(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(params.value);
+      }
+    },
     { headerName: 'Place', field: 'place', editable: true },
     { headerName: 'Category', field: 'category', editable: true, cellEditor: 'agSelectCellEditor',
       cellEditorParams: () => ({ values: this.categoriesList.map(c => c.id) }),
