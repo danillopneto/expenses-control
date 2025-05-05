@@ -46,6 +46,10 @@
           <mat-option *ngFor="let acc of accounts$ | async" [value]="acc.id">{{ acc.name }}</mat-option>
         </mat-select>
       </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>{{ 'EXPENSES.INSTALLMENTS' | translate }}</mat-label>
+        <input matInput type="number" min="1" [(ngModel)]="expenses[selectedExpenseIndex].installments" name="installments-mobile" required />
+      </mat-form-field>
     </div>
     <div class="card-actions">
       <button mat-icon-button color="warn" (click)="removeExpense(selectedExpenseIndex)"><mat-icon>delete</mat-icon></button>
@@ -58,8 +62,6 @@
   <div class="add-row-container">
     <button mat-raised-button color="primary" (click)="addExpense()">Add Row</button>
   </div>
-  <div class="paste-hint">Paste spreadsheet data here:</div>
-  <textarea class="paste-area" (paste)="onPaste($event)"></textarea>
   <div class="submit-all-container">
     <button mat-raised-button color="accent" (click)="onSubmit()" [disabled]="expenses.length === 0">Submit All</button>
   </div>

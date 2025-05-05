@@ -44,10 +44,9 @@ export class NavbarComponent {
       this.cdr.detectChanges();
     });
     this.translate.addLangs(['en', 'pt']);
-    this.translate.setDefaultLang('en');
-    const browserLang = this.translate.getBrowserLang() || 'en';
-    this.selectedLang = (browserLang && ['en', 'pt'].includes(browserLang)) ? browserLang : 'en';
-    this.translate.use(this.selectedLang);
+    this.translate.setDefaultLang('pt');
+    this.selectedLang = 'pt';
+    this.translate.use('pt');
     this.translate.onLangChange.subscribe(event => {
       this.updateTitles();
     });

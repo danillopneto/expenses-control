@@ -14,7 +14,8 @@
     "PLACE": "Place",
     "CATEGORY": "Category",
     "ACCOUNT_USED": "Account Used",
-    "ADD_EXPENSE": "Add Expense"
+    "ADD_EXPENSE": "Add Expense",
+    "INSTALLMENTS": "Installments"
   },
   "CATEGORIES": {
     "CATEGORY_NAME": "Category Name",

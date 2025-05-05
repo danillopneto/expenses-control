@@ -14,7 +14,8 @@
     "PLACE": "Local",
     "CATEGORY": "Categoria",
     "ACCOUNT_USED": "Conta Utilizada",
-    "ADD_EXPENSE": "Adicionar Despesa"
+    "ADD_EXPENSE": "Adicionar Despesa",
+    "INSTALLMENTS": "Parcelas"
   },
   "CATEGORIES": {
     "CATEGORY_NAME": "Nome da Categoria",

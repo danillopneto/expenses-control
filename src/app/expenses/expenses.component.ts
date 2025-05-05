@@ -56,7 +56,7 @@ export class ExpensesComponent implements OnInit {
   accounts$: Observable<Account[]>;
   private expensesSubject = new BehaviorSubject<any[]>([]);
   expenses$: Observable<any[]> = this.expensesSubject.asObservable();
-  displayedColumns: string[] = ['date', 'description', 'value', 'place', 'category', 'accountUsed', 'actions'];
+  displayedColumns: string[] = ['date', 'description', 'value', 'installments', 'place', 'category', 'accountUsed', 'actions'];
   categoriesList: Category[] = [];
   accountsList: Account[] = [];
   selectedExpenseIndex = 0;
@@ -141,6 +141,17 @@ export class ExpensesComponent implements OnInit {
           return new Intl.NumberFormat(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(params.value);
         }
       },
+      { headerName: this.translate.instant('EXPENSES.INSTALLMENTS'), field: 'installments', editable: true, type: 'numericColumn',
+        cellEditor: NumericCellEditor,
+        valueParser: (params: any) => {
+          const val = parseInt(params.newValue, 10);
+          return isNaN(val) || val < 1 ? 1 : val;
+        },
+        valueFormatter: (params: any) => {
+          const v = params.value;
+          return (v === undefined || v === null || v === '') ? '1' : v.toString();
+        }
+      },
       { headerName: this.translate.instant('EXPENSES.PLACE'), field: 'place', editable: true },
       { headerName: this.translate.instant('EXPENSES.CATEGORY'), field: 'category', editable: true, cellEditor: 'agSelectCellEditor',
         cellEditorParams: () => ({ values: this.categoriesList.map(c => c.id) }),
@@ -197,6 +208,7 @@ export class ExpensesComponent implements OnInit {
       date: '',
       description: '',
       value: '',
+      installments: 1,
       place: '',
       category: '',
       accountUsed: ''
@@ -219,7 +231,7 @@ export class ExpensesComponent implements OnInit {
     if (!user || this.expenses.length === 0) return;
     // Validate all rows
     const validExpenses = this.expenses.filter(e =>
-      e.date && e.description && e.value && e.place && e.category && e.accountUsed
+      e.date && e.description && e.value && e.installments && e.place && e.category && e.accountUsed
     );
     if (validExpenses.length === 0) {
       alert('Please fill in all required fields.');
@@ -230,6 +242,7 @@ export class ExpensesComponent implements OnInit {
       ...e,
       date: typeof e.date === 'string' ? e.date : (e.date instanceof Date ? e.date.toISOString().split('T')[0] : ''),
       value: parseFloat(e.value),
+      installments: parseInt(e.installments, 10) || 1,
       uid: user.uid,
       createdAt: new Date().toISOString()
     }));
@@ -251,15 +264,16 @@ export class ExpensesComponent implements OnInit {
     const newExpenses = rows.map(row => {
       const cols = row.split(/\t|,/); // Support tab or comma separated
       // Map category and account names to IDs
-      const categoryName = (cols[4] || '').trim();
-      const accountName = (cols[5] || '').trim();
+      const categoryName = (cols[5] || '').trim();
+      const accountName = (cols[6] || '').trim();
       const categoryObj = this.categoriesList.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
       const accountObj = this.accountsList.find(a => a.name.toLowerCase() === accountName.toLowerCase());
       return {
         date: cols[0] || '',
         description: cols[1] || '',
         value: cols[2] || '',
-        place: cols[3] || '',
+        installments: cols[3] ? parseInt(cols[3], 10) || 1 : 1,
+        place: cols[4] || '',
         category: categoryObj ? categoryObj.id : '',
         accountUsed: accountObj ? accountObj.id : ''
       };
