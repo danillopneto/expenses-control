@@ -42,6 +42,10 @@ export class ExpensesListComponent implements OnInit {
   filter: any = {};
   isTimestampDateField = false;
 
+  // Add default date range for current month
+  initialDateFrom: Date;
+  initialDateTo: Date;
+
   columnDefs: ColDef[] = [];
   defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
 
@@ -51,7 +55,12 @@ export class ExpensesListComponent implements OnInit {
     public translate: TranslateService,
     private auth: Auth,
     private firestore: Firestore
-  ) {}
+  ) {
+    // Set default range: first day of month to today
+    const now = new Date();
+    this.initialDateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
+    this.initialDateTo = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }
 
   async ngOnInit() {
     const user = this.auth.currentUser;
@@ -82,6 +91,12 @@ export class ExpensesListComponent implements OnInit {
     }
     this.expenses = [...this.allExpenses];
     this.loading = false;
+
+    // On load, filter by default date range
+    await this.onFilterChange({
+      dateFrom: this.initialDateFrom,
+      dateTo: this.initialDateTo
+    });
   }
 
   async onDeleteExpense(expense: any) {

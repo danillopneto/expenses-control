@@ -35,6 +35,9 @@ import { MatNativeDateModule, DateAdapter } from '@angular/material/core';
 export class ExpensesFilterComponent {
   @Input() categories: { id: string, name: string }[] = [];
   @Input() accounts: { id: string, name: string }[] = [];
+  @Input() initialDateFrom?: Date;
+  @Input() initialDateTo?: Date;
+  @Input() expanded: boolean = true;
   @Output() filterChange = new EventEmitter<any>();
 
   filterForm: FormGroup;
@@ -56,6 +59,22 @@ export class ExpensesFilterComponent {
     this.langSub = this.translate.onLangChange.subscribe(event => {
       this.dateAdapter.setLocale(event.lang);
     });
+  }
+
+  ngOnInit(): void {
+    if (this.initialDateFrom) {
+      this.filterForm.patchValue({ dateFrom: this.initialDateFrom });
+    }
+    if (this.initialDateTo) {
+      this.filterForm.patchValue({ dateTo: this.initialDateTo });
+    }
+    if (this.expanded) {
+      this.collapsed = false;
+    }
+    // Emit initial filter if both dates are set
+    if (this.initialDateFrom && this.initialDateTo) {
+      this.onSearch();
+    }
   }
 
   ngOnDestroy(): void {
