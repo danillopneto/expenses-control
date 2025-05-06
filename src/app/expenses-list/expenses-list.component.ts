@@ -57,6 +57,29 @@ export class ExpensesListComponent implements OnInit {
   editingExpenseIndex: number = -1;
   editForm: FormGroup | null = null;
 
+  pinnedBottomRowData = [
+    {
+      description: '',
+      value: 0
+    }
+  ];
+
+  /**
+   * Returns the sum of the value column for the current expenses list.
+   */
+  get totalValue(): number {
+    return this.expenses.reduce((sum, e) => sum + (Number(e.value) || 0), 0);
+  }
+
+  /**
+   * Returns the currency code based on the current language.
+   */
+  get currencyCode(): string {
+    const lang = this.translate.currentLang || 'en';
+    if (lang.startsWith('pt')) return 'BRL';
+    return 'USD';
+  }
+
   constructor(
     public route: ActivatedRoute,
     private firebaseService: FirebaseService,
@@ -77,6 +100,12 @@ export class ExpensesListComponent implements OnInit {
     this.translate.onLangChange.subscribe(event => {
       this.dateAdapter.setLocale(event.lang);
     });
+    this.pinnedBottomRowData = [
+      {
+        description: '',
+        value: 0
+      }
+    ];
   }
 
   async ngOnInit() {
@@ -114,6 +143,7 @@ export class ExpensesListComponent implements OnInit {
       dateFrom: this.initialDateFrom,
       dateTo: this.initialDateTo
     });
+    this.updatePinnedRow();
   }
 
   async onDeleteExpense(expense: any) {
@@ -162,7 +192,10 @@ export class ExpensesListComponent implements OnInit {
       {
         headerName: this.translate.instant('EXPENSES.INSTALLMENTS'),
         field: 'installments',
-        valueFormatter: (params: any) => (params.value === undefined || params.value === null || params.value === '') ? '1' : params.value.toString()
+        valueFormatter: (params: any) => {
+          if (params.node && params.node.rowPinned) return '';
+          return (params.value === undefined || params.value === null || params.value === '') ? '1' : params.value.toString();
+        }
       },
       {
         headerName: this.translate.instant('EXPENSES.PLACE'),
@@ -181,14 +214,17 @@ export class ExpensesListComponent implements OnInit {
       {
         headerName: '',
         field: 'actions',
-        cellRenderer: (params: any) => `
-          <button class="mat-icon-button mat-accent" title="Edit" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;" data-action="edit">
-            <span class="material-icons" style="color:#1976d2;">edit</span>
-          </button>
-          <button class="mat-icon-button mat-warn" title="Delete" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;" data-action="delete">
-            <span class="material-icons" style="color:#f44336;">delete</span>
-          </button>
-        `,
+        cellRenderer: (params: any) => {
+          if (params.node && params.node.rowPinned) return '';
+          return `
+            <button class="mat-icon-button mat-accent" title="Edit" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;" data-action="edit">
+              <span class="material-icons" style="color:#1976d2;">edit</span>
+            </button>
+            <button class="mat-icon-button mat-warn" title="Delete" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;" data-action="delete">
+              <span class="material-icons" style="color:#f44336;">delete</span>
+            </button>
+          `;
+        },
         width: 100,
         suppressMenu: true,
         sortable: false,
@@ -358,6 +394,7 @@ export class ExpensesListComponent implements OnInit {
   async onFilterChange(filter: any) {
     this.filter = filter;
     await this.queryExpensesWithFilter();
+    this.updatePinnedRow();
   }
 
   async queryExpensesWithFilter() {
@@ -392,5 +429,17 @@ export class ExpensesListComponent implements OnInit {
     }
     this.expenses = results;
     this.loading = false;
+  }
+
+  updatePinnedRow() {
+    this.pinnedBottomRowData = [
+      {
+        description: this.translate?.instant('EXPENSES_LIST.TOTAL') || '',
+        value: this.totalValue
+      }
+    ];
+    if (this.gridApi) {
+      this.gridApi.setPinnedBottomRowData(this.pinnedBottomRowData);
+    }
   }
 }
