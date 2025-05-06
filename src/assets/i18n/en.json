@@ -46,7 +46,8 @@
   },
   "EXPENSES_LIST": {
     "LOADING": "Loading expenses...",
-    "NO_EXPENSES": "No expenses found."
+    "NO_EXPENSES": "No expenses found.",
+    "EDIT_EXPENSE": "Edit Expense"
   },
   "DASHBOARD": {
     "WELCOME": "Welcome {{name}}"

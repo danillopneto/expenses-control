@@ -13,6 +13,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { ExpensesFilterComponent } from '../expenses-filter/expenses-filter.component';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DateAdapter } from '@angular/material/core';
+import { EditExpenseComponent } from '../expenses-edit/edit-expense.component';
+import { MatDialog } from '@angular/material/dialog';
 
 interface Expense {
   id: string;
@@ -29,7 +31,7 @@ interface Expense {
 @Component({
   selector: 'app-expenses-list',
   standalone: true,
-  imports: [SharedModule, CommonModule, MatTableModule, AgGridModule, ExpensesFilterComponent, ReactiveFormsModule],
+  imports: [SharedModule, CommonModule, MatTableModule, AgGridModule, ExpensesFilterComponent, ReactiveFormsModule, EditExpenseComponent],
   templateUrl: './expenses-list.component.html',
   styleUrls: ['./expenses-list.component.scss']
 })
@@ -62,7 +64,8 @@ export class ExpensesListComponent implements OnInit {
     private auth: Auth,
     private firestore: Firestore,
     private fb: FormBuilder,
-    private dateAdapter: DateAdapter<Date>
+    private dateAdapter: DateAdapter<Date>,
+    private dialog: MatDialog
   ) {
     // Set default range: first day of month to today
     const now = new Date();
@@ -223,7 +226,7 @@ export class ExpensesListComponent implements OnInit {
     } else if (expense.date instanceof Date) {
       dateValue = expense.date;
     }
-    this.editForm = this.fb.group({
+    const editForm = this.fb.group({
       date: [dateValue, Validators.required],
       description: [expense.description || '', Validators.required],
       value: [expense.value ?? '', [Validators.required, Validators.pattern(/^[0-9]+(\.[0-9]{1,2})?$/)]],
@@ -232,9 +235,52 @@ export class ExpensesListComponent implements OnInit {
       category: [expense.category || '', Validators.required],
       accountUsed: [expense.accountUsed || '', Validators.required]
     });
-    // Ensure date adapter locale is up to date when opening modal
     this.dateAdapter.setLocale(this.translate.currentLang);
-    this.editModalOpen = true;
+    const dialogRef = this.dialog.open(EditExpenseComponent, {
+      data: {
+        editForm,
+        categories: this.route.snapshot.data['categories'] || [],
+        accounts: this.route.snapshot.data['accounts'] || []
+      },
+      width: '400px',
+      disableClose: true
+    });
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result && result.save) {
+        await this.saveEditFromDialog(editForm, expense, index);
+      }
+    });
+  }
+
+  async saveEditFromDialog(editForm: FormGroup, expense: Expense, index: number) {
+    if (editForm.invalid) {
+      editForm.markAllAsTouched();
+      return;
+    }
+    const user = this.auth.currentUser;
+    if (!user) return;
+    const formValue = editForm.value;
+    let dateToSave: any;
+    if (formValue.date instanceof Date) {
+      dateToSave = Timestamp.fromDate(formValue.date);
+    } else if (typeof formValue.date === 'string') {
+      const parsed = this.parseDateByLocale(formValue.date);
+      dateToSave = parsed ? Timestamp.fromDate(parsed) : Timestamp.fromDate(new Date());
+    } else {
+      dateToSave = formValue.date;
+    }
+    const updatedExpense = {
+      ...expense,
+      ...formValue,
+      date: dateToSave
+    };
+    await this.firebaseService.updateForUser(user.uid, 'expenses', updatedExpense.id, updatedExpense);
+    this.expenses[index] = { ...updatedExpense };
+    const allIdx = this.allExpenses.findIndex(e => e.id === updatedExpense.id);
+    if (allIdx !== -1) {
+      this.allExpenses[allIdx] = { ...updatedExpense };
+    }
+    this.expenses = [...this.expenses];
   }
 
   closeEditModal() {

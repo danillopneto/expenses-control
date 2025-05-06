@@ -46,7 +46,8 @@
   },
   "EXPENSES_LIST": {
     "LOADING": "Carregando despesas...",
-    "NO_EXPENSES": "Nenhuma despesa encontrada."
+    "NO_EXPENSES": "Nenhuma despesa encontrada.",
+    "EDIT_EXPENSE": "Editar Despesa"
   },
   "DASHBOARD": {
     "WELCOME": "Bem-vindo {{name}}"
