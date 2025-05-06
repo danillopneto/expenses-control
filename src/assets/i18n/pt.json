@@ -16,7 +16,14 @@
     "ACCOUNT_USED": "Conta Utilizada",
     "ADD_EXPENSE": "Adicionar Despesa",
     "INSTALLMENTS": "Parcelas",
-    "PASTE": "Colar"
+    "PASTE": "Colar",
+    "FILTERS": "Filtros",
+    "DATE_FROM": "Data Inicial",
+    "DATE_TO": "Data Final",
+    "DESCRIPTION_CONTAINS": "Contém...",
+    "ALL": "Todas",
+    "SEARCH": "Buscar",
+    "RESET": "Limpar"
   },
   "CATEGORIES": {
     "CATEGORY_NAME": "Nome da Categoria",

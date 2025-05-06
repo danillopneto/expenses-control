@@ -16,7 +16,14 @@
     "ACCOUNT_USED": "Account Used",
     "ADD_EXPENSE": "Add Expense",
     "INSTALLMENTS": "Installments",
-    "PASTE": "Paste"
+    "PASTE": "Paste",
+    "FILTERS": "Filters",
+    "DATE_FROM": "Date From",
+    "DATE_TO": "Date To",
+    "DESCRIPTION_CONTAINS": "Contains...",
+    "ALL": "All",
+    "SEARCH": "Search",
+    "RESET": "Reset"
   },
   "CATEGORIES": {
     "CATEGORY_NAME": "Category Name",

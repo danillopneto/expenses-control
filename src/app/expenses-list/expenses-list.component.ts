@@ -102,7 +102,8 @@ export class ExpensesListComponent implements OnInit {
       },
       {
         headerName: this.translate.instant('EXPENSES.DESCRIPTION'),
-        field: 'description'
+        field: 'description',
+        flex: 1
       },
       {
         headerName: this.translate.instant('EXPENSES.VALUE'),
