@@ -11,11 +11,12 @@ import { ColDef } from 'ag-grid-community';
 import { AgGridModule } from 'ag-grid-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { ExpensesFilterComponent } from '../expenses-filter/expenses-filter.component';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { DateAdapter } from '@angular/material/core';
 
 interface Expense {
   id: string;
-  date?: string;
+  date?: string | { seconds: number } | Date;
   description?: string;
   value?: number;
   installments?: number;
@@ -49,17 +50,30 @@ export class ExpensesListComponent implements OnInit {
   columnDefs: ColDef[] = [];
   defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
 
+  editModalOpen = false;
+  editingExpense: Expense | null = null;
+  editingExpenseIndex: number = -1;
+  editForm: FormGroup | null = null;
+
   constructor(
     public route: ActivatedRoute,
     private firebaseService: FirebaseService,
     public translate: TranslateService,
     private auth: Auth,
-    private firestore: Firestore
+    private firestore: Firestore,
+    private fb: FormBuilder,
+    private dateAdapter: DateAdapter<Date>
   ) {
     // Set default range: first day of month to today
     const now = new Date();
     this.initialDateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
     this.initialDateTo = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // Set initial locale for date adapter
+    this.dateAdapter.setLocale(this.translate.currentLang);
+    // Update locale on language change
+    this.translate.onLangChange.subscribe(event => {
+      this.dateAdapter.setLocale(event.lang);
+    });
   }
 
   async ngOnInit() {
@@ -165,15 +179,18 @@ export class ExpensesListComponent implements OnInit {
         headerName: '',
         field: 'actions',
         cellRenderer: (params: any) => `
+          <button class="mat-icon-button mat-accent" title="Edit" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;" data-action="edit">
+            <span class="material-icons" style="color:#1976d2;">edit</span>
+          </button>
           <button class="mat-icon-button mat-warn" title="Delete" style="padding:0;min-width:0;background:none;border:none;cursor:pointer;outline:none;" data-action="delete">
             <span class="material-icons" style="color:#f44336;">delete</span>
           </button>
         `,
-        width: 60,
+        width: 100,
         suppressMenu: true,
         sortable: false,
         filter: false,
-        cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' }
+        cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }
       }
     ];
   }
@@ -184,8 +201,109 @@ export class ExpensesListComponent implements OnInit {
 
   onCellClicked(event: any) {
     if (event.colDef.field === 'actions') {
-      this.onDeleteExpense(event.data);
+      const action = event.event?.target?.getAttribute('data-action') || event.event?.target?.parentElement?.getAttribute('data-action');
+      if (action === 'edit') {
+        this.openEditModal(event.data, event.rowIndex);
+      } else if (action === 'delete') {
+        this.onDeleteExpense(event.data);
+      }
     }
+  }
+
+  openEditModal(expense: Expense, index: number) {
+    this.editingExpense = { ...expense };
+    this.editingExpenseIndex = index;
+    // Convert Firestore Timestamp or string to Date for the form
+    let dateValue: Date | null = null;
+    if (expense.date && typeof expense.date === 'object' && 'seconds' in expense.date) {
+      dateValue = new Date((expense.date as { seconds: number }).seconds * 1000);
+    } else if (typeof expense.date === 'string') {
+      const d = new Date(expense.date);
+      dateValue = isNaN(d.getTime()) ? null : d;
+    } else if (expense.date instanceof Date) {
+      dateValue = expense.date;
+    }
+    this.editForm = this.fb.group({
+      date: [dateValue, Validators.required],
+      description: [expense.description || '', Validators.required],
+      value: [expense.value ?? '', [Validators.required, Validators.pattern(/^[0-9]+(\.[0-9]{1,2})?$/)]],
+      installments: [expense.installments ?? 1, [Validators.required, Validators.min(1)]],
+      place: [expense.place || ''],
+      category: [expense.category || '', Validators.required],
+      accountUsed: [expense.accountUsed || '', Validators.required]
+    });
+    // Ensure date adapter locale is up to date when opening modal
+    this.dateAdapter.setLocale(this.translate.currentLang);
+    this.editModalOpen = true;
+  }
+
+  closeEditModal() {
+    this.editModalOpen = false;
+    this.editingExpense = null;
+    this.editingExpenseIndex = -1;
+    this.editForm = null;
+  }
+
+  parseDateByLocale(dateStr: string): Date | null {
+    if (!dateStr) return null;
+    const lang = this.translate.currentLang || 'en';
+    // Try ISO first
+    const iso = Date.parse(dateStr);
+    if (!isNaN(iso)) return new Date(iso);
+    // pt-BR: dd/MM/yyyy or d/M/yyyy
+    if (lang.startsWith('pt')) {
+      const match = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (match) {
+        const day = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10) - 1;
+        const year = parseInt(match[3], 10);
+        return new Date(year, month, day);
+      }
+    }
+    // en: MM/dd/yyyy or M/d/yyyy
+    if (lang.startsWith('en')) {
+      const match = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (match) {
+        const month = parseInt(match[1], 10) - 1;
+        const day = parseInt(match[2], 10);
+        const year = parseInt(match[3], 10);
+        return new Date(year, month, day);
+      }
+    }
+    return null;
+  }
+
+  async saveEdit() {
+    if (!this.editingExpense || this.editingExpenseIndex < 0 || !this.editForm) return;
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+    const user = this.auth.currentUser;
+    if (!user) return;
+    const formValue = this.editForm.value;
+    let dateToSave: any;
+    if (formValue.date instanceof Date) {
+      dateToSave = Timestamp.fromDate(formValue.date);
+    } else if (typeof formValue.date === 'string') {
+      const parsed = this.parseDateByLocale(formValue.date);
+      dateToSave = parsed ? Timestamp.fromDate(parsed) : Timestamp.fromDate(new Date());
+    } else {
+      dateToSave = formValue.date;
+    }
+    const updatedExpense = {
+      ...this.editingExpense,
+      ...formValue,
+      date: dateToSave
+    };
+    await this.firebaseService.updateForUser(user.uid, 'expenses', updatedExpense.id, updatedExpense);
+    this.expenses[this.editingExpenseIndex] = { ...updatedExpense };
+    const allIdx = this.allExpenses.findIndex(e => e.id === updatedExpense.id);
+    if (allIdx !== -1) {
+      this.allExpenses[allIdx] = { ...updatedExpense };
+    }
+    this.expenses = [...this.expenses];
+    this.closeEditModal();
   }
 
   async onFilterChange(filter: any) {

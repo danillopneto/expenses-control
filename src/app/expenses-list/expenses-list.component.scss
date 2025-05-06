@@ -1,0 +1,38 @@
+// ...existing code...
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.2);
+  z-index: 1000;
+  /* Only allow pointer events on the backdrop itself */
+}
+.modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+  z-index: 1010;
+  display: flex;
+  flex-direction: column;
+  /* Ensure modal dialog is above the backdrop and popups */
+}
+.modal-dialog h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+.full-width {
+  width: 100%;
+}
+.cdk-overlay-container, .cdk-overlay-pane {
+  z-index: 2000 !important;
+}
+// ...existing code...

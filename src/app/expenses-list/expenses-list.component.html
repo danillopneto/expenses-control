@@ -21,4 +21,61 @@
     (gridReady)="onGridReady($event)"
     (cellClicked)="onCellClicked($event)">
   </ag-grid-angular>
+
+  <!-- Edit Expense Modal -->
+  <ng-container *ngIf="editModalOpen && editingExpense && editForm">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog">
+      <h2 style="display:flex;align-items:center;justify-content:space-between;">
+        Edit Expense
+        <button mat-icon-button type="button" (click)="closeEditModal()" aria-label="Close" style="margin-left:1rem;"><mat-icon>close</mat-icon></button>
+      </h2>
+      <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ 'EXPENSES.DATE' | translate }}</mat-label>
+          <input matInput [matDatepicker]="editDatePicker" formControlName="date" required readonly />
+          <mat-datepicker-toggle matSuffix [for]="editDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #editDatePicker></mat-datepicker>
+          <mat-error *ngIf="editForm.get('date')?.invalid && editForm.get('date')?.touched">Required</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ 'EXPENSES.DESCRIPTION' | translate }}</mat-label>
+          <input matInput formControlName="description" required />
+          <mat-error *ngIf="editForm.get('description')?.invalid && editForm.get('description')?.touched">Required</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ 'EXPENSES.VALUE' | translate }}</mat-label>
+          <input matInput type="number" step="0.01" formControlName="value" required />
+          <mat-error *ngIf="editForm.get('value')?.invalid && editForm.get('value')?.touched">Required/Invalid</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ 'EXPENSES.INSTALLMENTS' | translate }}</mat-label>
+          <input matInput type="number" min="1" formControlName="installments" required />
+          <mat-error *ngIf="editForm.get('installments')?.invalid && editForm.get('installments')?.touched">Required/Min 1</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ 'EXPENSES.PLACE' | translate }}</mat-label>
+          <input matInput formControlName="place" />
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ 'EXPENSES.CATEGORY' | translate }}</mat-label>
+          <mat-select formControlName="category" required>
+            <mat-option *ngFor="let cat of route.snapshot.data['categories']" [value]="cat.id">{{cat.name}}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="editForm.get('category')?.invalid && editForm.get('category')?.touched">Required</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ 'EXPENSES.ACCOUNT_USED' | translate }}</mat-label>
+          <mat-select formControlName="accountUsed" required>
+            <mat-option *ngFor="let acc of route.snapshot.data['accounts']" [value]="acc.id">{{acc.name}}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="editForm.get('accountUsed')?.invalid && editForm.get('accountUsed')?.touched">Required</mat-error>
+        </mat-form-field>
+        <div style="display:flex;justify-content:flex-end;gap:1rem;margin-top:1.5rem;">
+          <button mat-stroked-button type="button" (click)="closeEditModal()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="editForm.invalid">Save</button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
 </div>

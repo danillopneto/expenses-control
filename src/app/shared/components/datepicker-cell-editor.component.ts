@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'app-datepicker-cell-editor',
   template: `
     <mat-form-field style="width: 100%;">
-      <input #input matInput [matDatepicker]="picker" [value]="dateValue" (dateChange)="onDateChange($event)" (keydown.enter)="onEnter()" />
+      <input #input matInput [matDatepicker]="picker" [value]="dateValue" (dateChange)="onDateChange($event)" (keydown.enter)="onEnter()" readonly />
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
