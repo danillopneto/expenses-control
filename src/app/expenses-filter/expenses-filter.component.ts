@@ -8,7 +8,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, DateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'app-expenses-filter',
@@ -23,7 +25,9 @@ import { TranslateModule } from '@ngx-translate/core';
     MatOptionModule,
     MatExpansionModule,
     MatButtonModule,
-    TranslateModule
+    TranslateModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './expenses-filter.component.html',
   styleUrls: ['./expenses-filter.component.scss']
@@ -35,8 +39,9 @@ export class ExpensesFilterComponent {
 
   filterForm: FormGroup;
   collapsed = false;
+  private langSub: any;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private dateAdapter: DateAdapter<Date>, private translate: TranslateService) {
     this.filterForm = this.fb.group({
       dateFrom: [''],
       dateTo: [''],
@@ -45,10 +50,34 @@ export class ExpensesFilterComponent {
       category: [''],
       accountUsed: ['']
     });
+    // Set initial locale
+    this.dateAdapter.setLocale(this.translate.currentLang);
+    // Subscribe to language changes
+    this.langSub = this.translate.onLangChange.subscribe(event => {
+      this.dateAdapter.setLocale(event.lang);
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.langSub) {
+      this.langSub.unsubscribe();
+    }
+  }
+
+  private toMDY(date: Date): string {
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
   }
 
   onSearch() {
-    this.filterChange.emit(this.filterForm.value);
+    const raw = this.filterForm.value;
+    const patch: any = { ...raw };
+    if (raw.dateFrom instanceof Date) {
+      patch.dateFrom = this.toMDY(raw.dateFrom);
+    }
+    if (raw.dateTo instanceof Date) {
+      patch.dateTo = this.toMDY(raw.dateTo);
+    }
+    this.filterChange.emit(patch);
   }
 
   toggleCollapse() {

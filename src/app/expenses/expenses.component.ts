@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, NgModel, FormsModule } from '@angular/forms';
-import { Firestore, collection, addDoc, collectionData } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, collectionData, Timestamp } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -122,7 +122,14 @@ export class ExpensesComponent implements OnInit {
         valueFormatter: (params: any) => {
           if (!params.value) return '';
           const lang = this.translate?.currentLang || 'en';
-          const date = new Date(params.value);
+          let date: Date;
+          if (params.value instanceof Timestamp) {
+            date = params.value.toDate();
+          } else if (typeof params.value === 'object' && params.value?.seconds !== undefined) {
+            date = new Date(params.value.seconds * 1000);
+          } else {
+            date = new Date(params.value);
+          }
           if (isNaN(date.getTime())) return params.value;
           return new Intl.DateTimeFormat(lang).format(date);
         }
@@ -244,7 +251,7 @@ export class ExpensesComponent implements OnInit {
     // Prepare expenses for Firebase
     const batch = validExpenses.map(e => ({
       ...e,
-      date: typeof e.date === 'string' ? e.date : (e.date instanceof Date ? e.date.toISOString().split('T')[0] : ''),
+      date: e.date instanceof Date ? Timestamp.fromDate(e.date) : (typeof e.date === 'string' ? Timestamp.fromDate(new Date(e.date)) : e.date),
       value: parseFloat(e.value),
       installments: parseInt(e.installments, 10) || 1,
       uid: user.uid,
@@ -274,8 +281,10 @@ export class ExpensesComponent implements OnInit {
       const accountName = (cols[6] || '').trim();
       const categoryObj = this.categoriesList.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
       const accountObj = this.accountsList.find(a => a.name.toLowerCase() === accountName.toLowerCase());
+      // Convert date string to Timestamp
+      let dateVal = cols[0] ? new Date(cols[0]) : null;
       return {
-        date: cols[0] || '',
+        date: dateVal instanceof Date && !isNaN(dateVal.getTime()) ? Timestamp.fromDate(dateVal) : '',
         description: cols[1] || '',
         value,
         installments: cols[3] ? parseInt(cols[3], 10) || 1 : 1,

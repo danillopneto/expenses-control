@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Auth } from '@angular/fire/auth';
-import { Firestore, collection, addDoc, query, where, getDocs, CollectionReference, DocumentData, orderBy } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, query, where, getDocs, CollectionReference, DocumentData, orderBy, Timestamp } from '@angular/fire/firestore';
 import { inject } from '@angular/core';
 import { SharedModule } from '../shared.module';
 import { MatTableModule } from '@angular/material/table';
@@ -42,6 +42,7 @@ export class ExpensesListComponent implements OnInit {
   accountsMap: Record<string, string> = {};
   gridApi: any;
   filter: any = {};
+  isTimestampDateField = false;
 
   columnDefs: ColDef[] = [];
   defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
@@ -74,6 +75,11 @@ export class ExpensesListComponent implements OnInit {
     const q = query(expensesRef, orderBy('date', 'desc'));
     const querySnapshot = await getDocs(q);
     this.allExpenses = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Detect if date field is a Firestore Timestamp
+    if (this.allExpenses.length > 0) {
+      const firstDate = this.allExpenses[0].date;
+      this.isTimestampDateField = typeof firstDate === 'object' && firstDate !== null && 'seconds' in firstDate;
+    }
     this.expenses = [...this.allExpenses];
     this.loading = false;
   }
@@ -95,7 +101,14 @@ export class ExpensesListComponent implements OnInit {
         field: 'date',
         valueFormatter: (params: any) => {
           if (!params.value) return '';
-          const date = new Date(params.value);
+          let date: Date;
+          if (params.value instanceof Timestamp) {
+            date = params.value.toDate();
+          } else if (typeof params.value === 'object' && params.value?.seconds !== undefined) {
+            date = new Date(params.value.seconds * 1000);
+          } else {
+            date = new Date(params.value);
+          }
           if (isNaN(date.getTime())) return params.value;
           return new Intl.DateTimeFormat(lang).format(date);
         }
@@ -171,12 +184,13 @@ export class ExpensesListComponent implements OnInit {
     this.loading = true;
     let expensesRef = collection(this.firestore, `users/${user.uid}/expenses`);
     let q: any = [];
-    // Firestore can only filter on indexed fields and equality/range, so we use 'where' for those
-    if (this.filter.dateFrom) {
-      q.push(where('date', '>=', this.filter.dateFrom));
+    let dateFrom = this.filter.dateFrom;
+    let dateTo = this.filter.dateTo;
+    if (dateFrom) {
+      q.push(where('date', '>=', Timestamp.fromDate(new Date(dateFrom))));
     }
-    if (this.filter.dateTo) {
-      q.push(where('date', '<=', this.filter.dateTo));
+    if (dateTo) {
+      q.push(where('date', '<=', Timestamp.fromDate(new Date(dateTo))));
     }
     if (this.filter.category) {
       q.push(where('category', '==', this.filter.category));
@@ -184,13 +198,10 @@ export class ExpensesListComponent implements OnInit {
     if (this.filter.accountUsed) {
       q.push(where('accountUsed', '==', this.filter.accountUsed));
     }
-    // Always order by date desc
     q.push(orderBy('date', 'desc'));
-    // Build query
     let queryRef = q.length ? query(expensesRef, ...q) : expensesRef;
     const querySnapshot = await getDocs(queryRef);
     let results: Expense[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    // In-memory filter for description/place (contains)
     if (this.filter.description) {
       results = results.filter(e => e.description?.toLowerCase().includes(this.filter.description.toLowerCase()));
     }
