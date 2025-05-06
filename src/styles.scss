@@ -17,3 +17,14 @@ body {
 .cdk-overlay-container, .cdk-overlay-pane {
   z-index: 2000 !important;
 }
+
+@media (max-width: 600px) {
+  .mat-dialog-fullscreen {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+}

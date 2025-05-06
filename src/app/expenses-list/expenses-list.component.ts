@@ -236,13 +236,16 @@ export class ExpensesListComponent implements OnInit {
       accountUsed: [expense.accountUsed || '', Validators.required]
     });
     this.dateAdapter.setLocale(this.translate.currentLang);
+    const isMobile = window.innerWidth <= 600;
     const dialogRef = this.dialog.open(EditExpenseComponent, {
       data: {
         editForm,
         categories: this.route.snapshot.data['categories'] || [],
         accounts: this.route.snapshot.data['accounts'] || []
       },
-      width: '400px',
+      width: isMobile ? '100vw' : '400px',
+      maxWidth: isMobile ? '100vw' : '90vw',
+      panelClass: isMobile ? 'mat-dialog-fullscreen' : '',
       disableClose: true
     });
     dialogRef.afterClosed().subscribe(async (result) => {
