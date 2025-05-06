@@ -9,8 +9,7 @@ export interface Category { id: string; name: string; }
 
 @Injectable({ providedIn: 'root' })
 export class CategoriesResolver implements Resolve<Observable<Category[]>> {
-  private auth = inject(Auth);
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, private auth: Auth) {}
   resolve() {
     const user = this.auth.currentUser;
     if (!user) return new Observable<Category[]>(observer => { observer.next([]); observer.complete(); });

@@ -255,7 +255,7 @@ export class ExpensesComponent implements OnInit {
       value: parseFloat(e.value),
       installments: parseInt(e.installments, 10) || 1,
       uid: user.uid,
-      createdAt: new Date().toISOString()
+      createdAt: Timestamp.now()
     }));
     try {
       await Promise.all(batch.map(exp => this.firebaseService.addForUser(user.uid, 'expenses', exp)));

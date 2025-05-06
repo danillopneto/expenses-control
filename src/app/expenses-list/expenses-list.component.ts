@@ -33,8 +33,6 @@ interface Expense {
   styleUrls: ['./expenses-list.component.scss']
 })
 export class ExpensesListComponent implements OnInit {
-  private auth = inject(Auth);
-  private firestore = inject(Firestore);
   expenses: Expense[] = [];
   allExpenses: Expense[] = [];
   loading = true;
@@ -50,7 +48,9 @@ export class ExpensesListComponent implements OnInit {
   constructor(
     public route: ActivatedRoute,
     private firebaseService: FirebaseService,
-    public translate: TranslateService
+    public translate: TranslateService,
+    private auth: Auth,
+    private firestore: Firestore
   ) {}
 
   async ngOnInit() {
