@@ -15,28 +15,28 @@
       [type]="'doughnut'">
     </canvas>
   </div>
-  <div class="chart-item bar-chart">
-    <h3>{{ 'DASHBOARD.BY_DATE' | translate }}</h3>
-    <canvas baseChart
-      [data]="dateBarData"
-      [options]="barDateChartOptions"
-      [type]="'bar'">
-    </canvas>
-  </div>
-  <div class="chart-item bar-chart">
-    <h3>{{ 'DASHBOARD.BY_DESCRIPTION' | translate }}</h3>
-    <canvas baseChart
-      [data]="descriptionBarData"
-      [options]="barChartOptions"
-      [type]="'bar'">
-    </canvas>
-  </div>
-  <div class="chart-item bar-chart">
-    <h3>{{ 'DASHBOARD.BY_PLACE' | translate }}</h3>
-    <canvas baseChart
-      [data]="placeBarData"
-      [options]="barChartOptions"
-      [type]="'bar'">
-    </canvas>
-  </div>
+</div>
+<div class="chart-item bar-chart">
+  <h3>{{ 'DASHBOARD.BY_DATE' | translate }}</h3>
+  <canvas baseChart
+    [data]="dateBarData"
+    [options]="barDateChartOptions"
+    [type]="'bar'">
+  </canvas>
+</div>
+<div class="chart-item bar-chart">
+  <h3>{{ 'DASHBOARD.BY_DESCRIPTION' | translate }}</h3>
+  <canvas baseChart
+    [data]="descriptionBarData"
+    [options]="barChartOptions"
+    [type]="'bar'">
+  </canvas>
+</div>
+<div class="chart-item bar-chart">
+  <h3>{{ 'DASHBOARD.BY_PLACE' | translate }}</h3>
+  <canvas baseChart
+    [data]="placeBarData"
+    [options]="barChartOptions"
+    [type]="'bar'">
+  </canvas>
 </div>
