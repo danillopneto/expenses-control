@@ -1,54 +1,77 @@
-<div class="dashboard-card">
-  <h2 *ngIf="user">{{ 'DASHBOARD.WELCOME' | translate:{ name: (user.displayName || user.email) } }}</h2>
+<div class="dashboard-welcome">
+  <h2 *ngIf="user">
+    {{
+      "DASHBOARD.WELCOME" | translate : { name: user.displayName || user.email }
+    }}
+  </h2>
 </div>
-
-<div class="dashboard-card">
-  <h2>{{ 'DASHBOARD.MONTHLY_SUMMARY' | translate }}</h2>
-  <div class="charts-grid-2col">
+<mat-expansion-panel [(expanded)]="monthlySummaryExpanded">
+  <mat-expansion-panel-header class="dashboard-summary-header">
+    <span class="dashboard-summary-title">{{
+      "DASHBOARD.MONTHLY_SUMMARY" | translate
+    }}</span>
+  </mat-expansion-panel-header>
+  <div *ngIf="monthlySummaryExpanded" class="charts-grid-2col">
     <!-- Donut: Expenses by Account Used -->
     <div class="chart-item">
-      <h3>{{ 'EXPENSES.ACCOUNT_USED' | translate }}</h3>
-      <canvas baseChart
+      <h3>{{ "EXPENSES.ACCOUNT_USED" | translate }}</h3>
+      <canvas
+        #accountDonutChart
+        baseChart
         [data]="accountDonutData"
         [type]="'doughnut'"
-        [options]="donutChartOptions">
+        [options]="donutChartOptions"
+        (chartClick)="onAccountDonutChartClick()"
+      >
       </canvas>
+      <div class="chart-total">{{ accountDonutTotal | currencyFormat }}</div>
     </div>
     <!-- Donut: Expenses by Category -->
     <div class="chart-item">
-      <h3>{{ 'EXPENSES.CATEGORY' | translate }}</h3>
-      <canvas baseChart
+      <h3>{{ "EXPENSES.CATEGORY" | translate }}</h3>
+      <canvas
+        #categoryDonutChart
+        baseChart
         [data]="categoryDonutData"
         [type]="'doughnut'"
-        [options]="donutChartOptions">
+        [options]="donutChartOptions"
+        (chartClick)="onCategoryDonutChartClick()"
+      >
       </canvas>
+      <div class="chart-total">{{ categoryDonutTotal | currencyFormat }}</div>
     </div>
     <!-- Bar: Expenses by Date -->
     <div class="chart-item">
-      <h3>{{ 'EXPENSES.DATE' | translate }}</h3>
-      <canvas baseChart
+      <h3>{{ "EXPENSES.DATE" | translate }}</h3>
+      <canvas
+        baseChart
         [data]="dateBarData"
         [type]="'bar'"
-        [options]="barChartOptions">
+        [options]="barChartOptions"
+      >
       </canvas>
     </div>
     <!-- Bar: Expenses by Description -->
     <div class="chart-item">
-      <h3>{{ 'EXPENSES.DESCRIPTION' | translate }}</h3>
-      <canvas baseChart
+      <h3>{{ "EXPENSES.DESCRIPTION" | translate }}</h3>
+      <canvas
+        baseChart
         [data]="descriptionBarData"
         [type]="'bar'"
-        [options]="barChartOptions">
+        [options]="barChartOptions"
+      >
       </canvas>
     </div>
     <!-- Bar: Expenses by Place -->
     <div class="chart-item">
-      <h3>{{ 'EXPENSES.PLACE' | translate }}</h3>
-      <canvas baseChart
+      <h3>{{ "EXPENSES.PLACE" | translate }}</h3>
+      <canvas
+        baseChart
         [data]="placeBarData"
         [type]="'bar'"
-        [options]="barChartOptions">
+        [options]="barChartOptions"
+      >
       </canvas>
     </div>
   </div>
-</div>
+</mat-expansion-panel>
