@@ -179,7 +179,7 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['expenses']) {
+    if (changes['expenses'] || changes['accounts'] || changes['categories']) {
       this.prepareCharts();
     }
   }
