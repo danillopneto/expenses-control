@@ -52,6 +52,11 @@
   },
   "DASHBOARD": {
     "WELCOME": "Bem-vindo {{name}}",
-    "MONTHLY_SUMMARY": "Resumo Mensal"
+    "MONTHLY_SUMMARY": "Resumo Mensal",
+    "BY_ACCOUNT": "Por Conta",
+    "BY_CATEGORY": "Por Categoria",
+    "BY_DATE": "Por Data",
+    "BY_DESCRIPTION": "Por Descrição",
+    "BY_PLACE": "Por Local"
   }
 }

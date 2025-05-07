@@ -11,64 +11,10 @@
       "DASHBOARD.MONTHLY_SUMMARY" | translate
     }}</span>
   </mat-expansion-panel-header>
-  <div *ngIf="monthlySummaryExpanded">
-    <!-- Donut charts in two columns -->
-    <div class="charts-grid-2col">
-      <!-- Donut: Expenses by Account Used -->
-      <div class="chart-item">
-        <h3>{{ "EXPENSES.ACCOUNT_USED" | translate }}</h3>
-        <canvas
-          #accountDonutChart
-          baseChart
-          [data]="accountDonutData"
-          [type]="'doughnut'"
-          [options]="donutChartOptions"
-        >
-        </canvas>
-      </div>
-      <!-- Donut: Expenses by Category -->
-      <div class="chart-item">
-        <h3>{{ "EXPENSES.CATEGORY" | translate }}</h3>
-        <canvas
-          #categoryDonutChart
-          baseChart
-          [data]="categoryDonutData"
-          [type]="'doughnut'"
-          [options]="donutChartOptions"
-        >
-        </canvas>
-      </div>
-    </div>
-    <!-- Bar charts full width -->
-    <div class="chart-item">
-      <h3>{{ "EXPENSES.DATE" | translate }}</h3>
-      <canvas
-        baseChart
-        [data]="dateBarData"
-        [type]="'bar'"
-        [options]="barDateChartOptions"
-      >
-      </canvas>
-    </div>
-    <div class="chart-item">
-      <h3>{{ "EXPENSES.DESCRIPTION" | translate }}</h3>
-      <canvas
-        baseChart
-        [data]="descriptionBarData"
-        [type]="'bar'"
-        [options]="barChartOptions"
-      >
-      </canvas>
-    </div>
-    <div class="chart-item">
-      <h3>{{ "EXPENSES.PLACE" | translate }}</h3>
-      <canvas
-        baseChart
-        [data]="placeBarData"
-        [type]="'bar'"
-        [options]="barChartOptions"
-      >
-      </canvas>
-    </div>
-  </div>
+  <app-dashboard-summary
+    *ngIf="monthlySummaryExpanded"
+    [expenses]="expenses"
+    [accounts]="accounts"
+    [categories]="categories"
+  ></app-dashboard-summary>
 </mat-expansion-panel>

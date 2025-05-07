@@ -1,32 +1,26 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Auth } from '@angular/fire/auth';
 import { inject } from '@angular/core';
-import { BaseChartDirective } from 'ng2-charts';
-import { ChartType, ChartOptions, ChartData, Chart, registerables } from 'chart.js';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FirebaseService } from '../shared/firebase.service';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
-
-Chart.register(...registerables);
-Chart.register(ChartDataLabels);
+import { DashboardSummaryComponent } from '../dashboard-summary/dashboard-summary.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    BaseChartDirective,
     TranslateModule,
     MatCardModule,
-    MatExpansionModule
+    MatExpansionModule,
+    DashboardSummaryComponent,
   ],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private auth = inject(Auth);
@@ -34,161 +28,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
   private langSub?: Subscription;
   expenses: any[] = [];
-  public monthlyExpenses: any[] = [];
   accounts: any[] = [];
   categories: any[] = [];
-  private accountNameMap: Record<string, string> = {};
-  private categoryNameMap: Record<string, string> = {};
-
-  @ViewChild('accountDonutChart') accountDonutChart?: BaseChartDirective;
-  @ViewChild('categoryDonutChart') categoryDonutChart?: BaseChartDirective;
-
-  // Chart data variables
-  public accountDonutData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [] }] };
-  public categoryDonutData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [] }] };
-  public dateBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [] }] };
-  public descriptionBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [] }] };
-  public placeBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [] }] };
-
-  public accountDonutTotal = 0;
-  public categoryDonutTotal = 0;
-
-  public donutChartOptions: ChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      datalabels: {
-        color: '#333',
-        font: { weight: 'bold', size: 16 },
-        anchor: 'center',
-        align: 'center',
-        formatter: (value, ctx) => {
-          let lang = this.translate.currentLang || 'en-US';
-          if (lang.startsWith('pt')) lang = 'pt-BR';
-          const val = typeof value === 'number' ? value : 0;
-          return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        },
-        clamp: true,
-        clip: false
-      }
-    },
-    layout: {
-      padding: 16
-    }
-  };
-
-  public barChartOptions: ChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-        labels: {
-          generateLabels: (chart) => {
-            const original = Chart.defaults.plugins.legend.labels.generateLabels(chart) || [];
-            return original.map(label => ({
-              ...label,
-              text: typeof label.text === 'string' && label.text.length > 12
-                ? label.text.slice(0, 12) + '…'
-                : label.text
-            }));
-          }
-        }
-      },
-      datalabels: {
-        anchor: 'end',
-        align: 'end',
-        formatter: (value, ctx) => {
-          let lang = this.translate.currentLang || 'en-US';
-          if (lang.startsWith('pt')) lang = 'pt-BR';
-          const val = typeof value === 'number' ? value : 0;
-          return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        },
-        font: { weight: 'bold' }
-      }
-    },
-    layout: {
-      padding: 32
-    },
-    scales: {
-      x: {
-        ticks: {
-          callback: function(value, index) {
-            // 'this' is the scale, so 'this.chart' is the chart instance
-            const labels = (this as any).chart?.data?.labels || [];
-            // If this is the date chart, format as date
-            if (labels === (this as any).chart?.options?.dateBarDataLabels) {
-              const lang = (this as any).chart?.options?.currentLang || 'en-US';
-              const label = labels[index];
-              const parsed = LocalizedDatePipe.parse(label as string, lang);
-              if (!isNaN(parsed.getTime())) {
-                return LocalizedDatePipe.transform(label, lang, { year: 'numeric', month: '2-digit', day: '2-digit' });
-              }
-            }
-            // For other charts, return the label as string
-            return typeof value === 'string' ? value : labels[index] ?? value;
-          }
-        }
-      }
-    }
-  };
-
-  public barDateChartOptions: ChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-        labels: {
-          generateLabels: (chart) => {
-            const original = Chart.defaults.plugins.legend.labels.generateLabels(chart) || [];
-            return original.map(label => ({
-              ...label,
-              text: typeof label.text === 'string' && label.text.length > 12
-                ? label.text.slice(0, 12) + '…'
-                : label.text
-            }));
-          }
-        }
-      },
-      datalabels: {
-        anchor: 'end',
-        align: 'end',
-        formatter: (value, ctx) => {
-          let lang = this.translate.currentLang || 'en-US';
-          if (lang.startsWith('pt')) lang = 'pt-BR';
-          const val = typeof value === 'number' ? value : 0;
-          return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        },
-        font: { weight: 'bold' }
-      }
-    },
-    layout: {
-      padding: 32
-    },
-    scales: {
-      x: {
-        ticks: {
-          callback: () => '' // will be set in ngOnInit and onLangChange
-        }
-      }
-    }
-  };
 
   monthlySummaryExpanded = true;
   toggleMonthlySummary() {
     this.monthlySummaryExpanded = !this.monthlySummaryExpanded;
   }
-
-  chartTotalUpdatePlugin = {
-    id: 'chartTotalUpdatePlugin',
-    afterUpdate: (chart: Chart) => {
-      if (chart.canvas === this.accountDonutChart?.chart?.canvas) {
-        this.updateAccountDonutTotal();
-      }
-      if (chart.canvas === this.categoryDonutChart?.chart?.canvas) {
-        this.updateCategoryDonutTotal();
-      }
-    }
-  };
 
   async ngOnInit() {
     const user = await this.auth.currentUser;
@@ -199,215 +45,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.firebaseService.getAllForUser(user.uid, 'accounts'),
       this.firebaseService.getAllForUser(user.uid, 'categories'),
     ]);
-    this.expenses = expensesSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
-    this.accounts = accountsSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
-    this.categories = categoriesSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
-    // Build id → name maps
-    this.accountNameMap = Object.fromEntries(this.accounts.map(a => [a.id, a.name]));
-    this.categoryNameMap = Object.fromEntries(this.categories.map(c => [c.id, c.name]));
-    this.prepareCharts();
-    this.setBarDateChartTickCallback();
-    this.langSub = this.translate.onLangChange.subscribe(() => {
-      this.updateDonutChartOptions();
-      this.setBarDateChartTickCallback();
-    });
-    this.updateDonutChartOptions();
-    Chart.register(this.chartTotalUpdatePlugin);
+    this.expenses = expensesSnap.docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    this.accounts = accountsSnap.docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    this.categories = categoriesSnap.docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    this.langSub = this.translate.onLangChange.subscribe(() => {});
   }
 
   ngOnDestroy() {
     if (this.langSub) this.langSub.unsubscribe();
   }
 
-  updateDonutChartOptions() {
-    const lang = this.translate.currentLang || 'en-US';
-    const locale = lang.startsWith('pt') ? 'pt-BR' : 'en-US';
-    this.donutChartOptions = {
-      ...this.donutChartOptions,
-      plugins: {
-        ...this.donutChartOptions.plugins,
-        datalabels: {
-          ...this.donutChartOptions.plugins?.datalabels,
-          formatter: (value, ctx) => {
-            let lang = this.translate.currentLang || 'en-US';
-            if (lang.startsWith('pt')) lang = 'pt-BR';
-            const val = typeof value === 'number' ? value : 0;
-            return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          }
-        }
-      }
-    };
-    this.barChartOptions = {
-      ...this.barChartOptions,
-      plugins: {
-        ...this.barChartOptions.plugins,
-        datalabels: {
-          ...this.barChartOptions.plugins?.datalabels,
-          formatter: (value, ctx) => {
-            let lang = this.translate.currentLang || 'en-US';
-            if (lang.startsWith('pt')) lang = 'pt-BR';
-            const val = typeof value === 'number' ? value : 0;
-            return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          }
-        }
-      }
-    };
-  }
-
-  setBarDateChartTickCallback() {
-    const lang = this.translate.currentLang || 'en-US';
-    (
-      this.barDateChartOptions.scales!['x']!.ticks as any
-    ).callback = function(value: string | number, index: number) {
-      const labels = (this as any).chart?.data?.labels || [];
-      const label = labels[index];
-      const parsed = LocalizedDatePipe.parse(label as string, lang);
-      if (!isNaN(parsed.getTime())) {
-        return LocalizedDatePipe.transform(label, lang, { year: 'numeric', month: '2-digit', day: '2-digit' });
-      }
-      return label;
-    };
-  }
-
-  prepareCharts() {
-    // Filter for current month
-    const now = new Date();
-    const month = now.getMonth();
-    const year = now.getFullYear();
-    this.monthlyExpenses = this.expenses.filter(e => {
-      let d: Date;
-      if (e.date && typeof e.date.seconds === 'number') {
-        d = new Date(e.date.seconds * 1000);
-      } else {
-        d = new Date(e.date);
-      }
-      return d.getMonth() === month && d.getFullYear() === year;
-    });
-    const monthlyExpenses = this.monthlyExpenses;
-    const lang = this.translate.currentLang || 'en-US';
-    // Use only 'pt-BR' for Portuguese, otherwise use the current lang
-    const locale = lang.startsWith('pt') ? 'pt-BR' : lang;
-    // Group helpers
-    const groupSum = (arr: any[], key: string) => {
-      const map = new Map<string, number>();
-      arr.forEach(e => {
-        const k = e[key] || 'Other';
-        map.set(k, (map.get(k) || 0) + Number(e.value || 0));
-      });
-      return map;
-    };
-    // Donut: by Account (use names)
-    const accMap = new Map<string, number>();
-    monthlyExpenses.forEach(e => {
-      const name = this.accountNameMap[e.accountUsed] || e.accountUsed || 'Other';
-      accMap.set(name, (accMap.get(name) || 0) + Number(e.value || 0));
-    });
-    this.accountDonutData = {
-      labels: Array.from(accMap.keys()),
-      datasets: [{ data: Array.from(accMap.values()) }]
-    };
-    this.accountDonutTotal = Array.from(accMap.values()).reduce((a, b) => a + b, 0);
-    // Donut: by Category (use names)
-    const catMap = new Map<string, number>();
-    monthlyExpenses.forEach(e => {
-      const name = this.categoryNameMap[e.category] || e.category || 'Other';
-      catMap.set(name, (catMap.get(name) || 0) + Number(e.value || 0));
-    });
-    this.categoryDonutData = {
-      labels: Array.from(catMap.keys()),
-      datasets: [{ data: Array.from(catMap.values()) }]
-    };
-    this.categoryDonutTotal = Array.from(catMap.values()).reduce((a, b) => a + b, 0);
-    // Bar: by Date
-    const dateMap = new Map<string, number>();
-    monthlyExpenses.forEach(e => {
-      let d: Date;
-      if (e.date && typeof e.date.seconds === 'number') {
-        d = new Date(e.date.seconds * 1000);
-      } else {
-        d = new Date(e.date);
-      }
-      const label = new LocalizedDatePipe().transform(d, { year: 'numeric', month: '2-digit', day: '2-digit' });
-      dateMap.set(label, (dateMap.get(label) || 0) + Number(e.value || 0));
-    });
-    // Sort dateMap by date using the pipe's parse method
-    const dateEntries = Array.from(dateMap.entries()).sort((a, b) => {
-      return LocalizedDatePipe.parse(a[0], lang).getTime() - LocalizedDatePipe.parse(b[0], lang).getTime();
-    });
-    this.dateBarData = {
-      labels: dateEntries.map(e => e[0]),
-      datasets: [{ data: dateEntries.map(e => e[1]), label: 'Total' }]
-    };
-    // Bar: by Description
-    const descMap = groupSum(monthlyExpenses, 'description');
-    // Sort descMap by value descending
-    const descEntries = Array.from(descMap.entries()).sort((a, b) => b[1] - a[1]);
-    this.descriptionBarData = {
-      labels: descEntries.map(e => e[0]),
-      datasets: [{ data: descEntries.map(e => e[1]), label: 'Total' }]
-    };
-    // Bar: by Place
-    const placeMap = groupSum(monthlyExpenses, 'place');
-    // Sort placeMap by value descending
-    const placeEntries = Array.from(placeMap.entries()).sort((a, b) => b[1] - a[1]);
-    this.placeBarData = {
-      labels: placeEntries.map(e => e[0]),
-      datasets: [{ data: placeEntries.map(e => e[1]), label: 'Total' }]
-    };
-
-    setTimeout(() => {
-      this.updateAccountDonutTotal();
-      this.updateCategoryDonutTotal();
-    });
-  }
-
-  updateAccountDonutTotal() {
-    if (!this.accountDonutChart?.chart) return;
-    const chart = this.accountDonutChart.chart;
-    const data = chart.data.datasets[0].data as number[];
-    this.accountDonutTotal = data.reduce((sum, val, idx) =>
-      chart.getDataVisibility(idx) ? sum + (typeof val === 'number' ? val : 0) : sum, 0);
-  }
-
-  updateCategoryDonutTotal() {
-    if (!this.categoryDonutChart?.chart) return;
-    const chart = this.categoryDonutChart.chart;
-    const data = chart.data.datasets[0].data as number[];
-    this.categoryDonutTotal = data.reduce((sum, val, idx) =>
-      chart.getDataVisibility(idx) ? sum + (typeof val === 'number' ? val : 0) : sum, 0);
-  }
-
-  onAccountDonutChartClick() {
-    setTimeout(() => this.updateAccountDonutTotal());
-  }
-
-  onCategoryDonutChartClick() {
-    setTimeout(() => this.updateCategoryDonutTotal());
-  }
-
   get user() {
     return this.auth.currentUser;
   }
-
-  // Sample doughnut chart data
-  public doughnutChartLabels: string[] = ['Savings', 'Expenses', 'Investments'];
-  public doughnutChartData: ChartData<'doughnut'> = {
-    labels: this.doughnutChartLabels,
-    datasets: [
-      { data: [350, 450, 200] }
-    ]
-  };
-  public doughnutChartType: ChartType = 'doughnut';
-  public doughnutChartOptions: ChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Account Distribution'
-      }
-    }
-  };
 }

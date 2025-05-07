@@ -1,0 +1,64 @@
+.charts-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chart-item {
+  background: #fcfbff;
+  border-radius: 8px;
+  padding: 1.5rem 1rem 2rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Make bar charts occupy the entire row */
+.chart-item.bar-chart {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 900px) {
+  .charts-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-summary-header {
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem 1rem 1.5rem 1rem;
+}
+
+.dashboard-summary-title {
+  flex: 1;
+  font-size: 1.3rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.mat-expansion-panel-header {
+  padding-right: 56px !important;
+}
+
+.mat-expansion-indicator {
+  right: 24px;
+  position: absolute;
+}
+
+.chart-total {
+  margin-top: 0.5rem;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: #1976d2;
+  text-align: center;
+}
+
+.dashboard-welcome {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}

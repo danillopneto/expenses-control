@@ -1,0 +1,42 @@
+<div class="charts-grid-2col">
+  <div class="chart-item">
+    <h3>{{ 'DASHBOARD.BY_ACCOUNT' | translate }}</h3>
+    <canvas baseChart
+      [data]="accountDonutData"
+      [options]="donutChartOptions"
+      [type]="'doughnut'">
+    </canvas>
+  </div>
+  <div class="chart-item">
+    <h3>{{ 'DASHBOARD.BY_CATEGORY' | translate }}</h3>
+    <canvas baseChart
+      [data]="categoryDonutData"
+      [options]="donutChartOptions"
+      [type]="'doughnut'">
+    </canvas>
+  </div>
+  <div class="chart-item bar-chart">
+    <h3>{{ 'DASHBOARD.BY_DATE' | translate }}</h3>
+    <canvas baseChart
+      [data]="dateBarData"
+      [options]="barDateChartOptions"
+      [type]="'bar'">
+    </canvas>
+  </div>
+  <div class="chart-item bar-chart">
+    <h3>{{ 'DASHBOARD.BY_DESCRIPTION' | translate }}</h3>
+    <canvas baseChart
+      [data]="descriptionBarData"
+      [options]="barChartOptions"
+      [type]="'bar'">
+    </canvas>
+  </div>
+  <div class="chart-item bar-chart">
+    <h3>{{ 'DASHBOARD.BY_PLACE' | translate }}</h3>
+    <canvas baseChart
+      [data]="placeBarData"
+      [options]="barChartOptions"
+      [type]="'bar'">
+    </canvas>
+  </div>
+</div>
