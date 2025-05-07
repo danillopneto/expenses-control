@@ -13,8 +13,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { ExpensesFilterComponent } from '../expenses-filter/expenses-filter.component';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DateAdapter } from '@angular/material/core';
-import { EditExpenseComponent } from '../expenses-edit/edit-expense.component';
 import { MatDialog } from '@angular/material/dialog';
+import { EditExpenseComponent } from '../expenses-edit/edit-expense.component';
 
 interface Expense {
   id: string;
@@ -31,7 +31,7 @@ interface Expense {
 @Component({
   selector: 'app-expenses-list',
   standalone: true,
-  imports: [SharedModule, CommonModule, MatTableModule, AgGridModule, ExpensesFilterComponent, ReactiveFormsModule, EditExpenseComponent],
+  imports: [SharedModule, CommonModule, MatTableModule, AgGridModule, ExpensesFilterComponent, ReactiveFormsModule],
   templateUrl: './expenses-list.component.html',
   styleUrls: ['./expenses-list.component.scss']
 })
@@ -252,9 +252,11 @@ export class ExpensesListComponent implements OnInit {
   openEditModal(expense: Expense, index: number) {
     this.editingExpense = { ...expense };
     this.editingExpenseIndex = index;
-    // Convert Firestore Timestamp or string to Date for the form
+    // Ensure date is always a Date object or null
     let dateValue: Date | null = null;
-    if (expense.date && typeof expense.date === 'object' && 'seconds' in expense.date) {
+    if (expense.date instanceof Timestamp) {
+      dateValue = expense.date.toDate();
+    } else if (expense.date && typeof expense.date === 'object' && 'seconds' in expense.date) {
       dateValue = new Date((expense.date as { seconds: number }).seconds * 1000);
     } else if (typeof expense.date === 'string') {
       const d = new Date(expense.date);
@@ -313,13 +315,23 @@ export class ExpensesListComponent implements OnInit {
       ...formValue,
       date: dateToSave
     };
-    await this.firebaseService.updateForUser(user.uid, 'expenses', updatedExpense.id, updatedExpense);
+    // Update local arrays
     this.expenses[index] = { ...updatedExpense };
     const allIdx = this.allExpenses.findIndex(e => e.id === updatedExpense.id);
     if (allIdx !== -1) {
       this.allExpenses[allIdx] = { ...updatedExpense };
     }
-    this.expenses = [...this.expenses];
+    // Sort by date descending
+    const getDate = (e: any) => {
+      if (e.date instanceof Timestamp) return e.date.toDate();
+      if (e.date && typeof e.date === 'object' && 'seconds' in e.date) return new Date(e.date.seconds * 1000);
+      if (typeof e.date === 'string') return new Date(e.date);
+      if (e.date instanceof Date) return e.date;
+      return new Date(0);
+    };
+    this.expenses = [...this.expenses].sort((a, b) => getDate(b).getTime() - getDate(a).getTime());
+    this.allExpenses = [...this.allExpenses].sort((a, b) => getDate(b).getTime() - getDate(a).getTime());
+    this.updatePinnedRow();
   }
 
   closeEditModal() {

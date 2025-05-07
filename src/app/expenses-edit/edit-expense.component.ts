@@ -8,8 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDatepickerToggle } from '@angular/material/datepicker';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { DateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'app-edit-expense',
@@ -37,11 +38,19 @@ export class EditExpenseComponent {
 
   constructor(
     public dialogRef: MatDialogRef<EditExpenseComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private dateAdapter: DateAdapter<Date>,
+    private translate: TranslateService
   ) {
     this.editForm = data.editForm;
     this.categories = data.categories;
     this.accounts = data.accounts;
+    // Set initial locale for date adapter
+    this.dateAdapter.setLocale(this.translate.currentLang);
+    // Update locale on language change
+    this.translate.onLangChange.subscribe(event => {
+      this.dateAdapter.setLocale(event.lang);
+    });
   }
 
   onCancel() {

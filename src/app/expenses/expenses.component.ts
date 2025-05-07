@@ -16,10 +16,10 @@ import { CommonModule } from '@angular/common';
 import { AgGridModule } from 'ag-grid-angular';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { DatepickerCellEditor } from '../shared/components/datepicker-cell-editor.component';
-import { NumericCellEditor } from '../shared/components/numeric-cell-editor.component';
 import { TranslateService } from '@ngx-translate/core';
 import { ColDef } from 'ag-grid-community';
+import { DatepickerCellEditor } from '../shared/components/datepicker-cell-editor.component';
+import { NumericCellEditor } from '../shared/components/numeric-cell-editor.component';
 
 interface Category {
   id?: string;
@@ -43,9 +43,7 @@ interface Account {
     MatButtonModule,
     MatIconModule,
     FormsModule,
-    AgGridModule,
-    DatepickerCellEditor,
-    NumericCellEditor
+    AgGridModule
   ],
   templateUrl: './expenses.component.html',
   styleUrls: ['./expenses.component.scss']
