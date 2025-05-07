@@ -8,7 +8,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FirebaseService } from '../shared/firebase.service';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
-import { CurrencyFormatPipe } from '../pipes/currency-format.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 
@@ -23,10 +22,8 @@ Chart.register(ChartDataLabels);
     BaseChartDirective,
     TranslateModule,
     MatCardModule,
-    CurrencyFormatPipe,
     MatExpansionModule
   ],
-  providers: [CurrencyFormatPipe],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -34,7 +31,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private auth = inject(Auth);
   private firebaseService = inject(FirebaseService);
   private translate = inject(TranslateService);
-  private currencyFormatPipe = inject(CurrencyFormatPipe);
   private langSub?: Subscription;
   expenses: any[] = [];
   public monthlyExpenses: any[] = [];
@@ -66,7 +62,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         anchor: 'center',
         align: 'center',
         formatter: (value, ctx) => {
-          // Use Angular's language selector
           let lang = this.translate.currentLang || 'en-US';
           if (lang.startsWith('pt')) lang = 'pt-BR';
           const val = typeof value === 'number' ? value : 0;
@@ -88,7 +83,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       datalabels: {
         anchor: 'end',
         align: 'end',
-        formatter: (value, ctx) => value,
+        formatter: (value, ctx) => {
+          let lang = this.translate.currentLang || 'en-US';
+          if (lang.startsWith('pt')) lang = 'pt-BR';
+          const val = typeof value === 'number' ? value : 0;
+          return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        },
         font: { weight: 'bold' }
       }
     },
@@ -150,7 +150,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ...this.donutChartOptions.plugins,
         datalabels: {
           ...this.donutChartOptions.plugins?.datalabels,
-          formatter: (value, ctx) => this.currencyFormatPipe.transform(value)
+          formatter: (value, ctx) => {
+            let lang = this.translate.currentLang || 'en-US';
+            if (lang.startsWith('pt')) lang = 'pt-BR';
+            const val = typeof value === 'number' ? value : 0;
+            return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          }
         }
       }
     };
@@ -160,7 +165,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ...this.barChartOptions.plugins,
         datalabels: {
           ...this.barChartOptions.plugins?.datalabels,
-          formatter: (value, ctx) => this.currencyFormatPipe.transform(value)
+          formatter: (value, ctx) => {
+            let lang = this.translate.currentLang || 'en-US';
+            if (lang.startsWith('pt')) lang = 'pt-BR';
+            const val = typeof value === 'number' ? value : 0;
+            return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          }
         }
       }
     };
