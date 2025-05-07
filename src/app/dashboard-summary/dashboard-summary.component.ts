@@ -225,30 +225,21 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       datasets: [{ data: Array.from(catMap.values()) }],
     };
     // Bar: by Date
-    const dateMap = new Map<string, number>();
+    const dateMap = new Map<string, { date: Date, value: number }>();
     this.expenses.forEach((e) => {
-      let d: Date;
-      if (e.date && typeof e.date.seconds === 'number') {
-        d = new Date(e.date.seconds * 1000);
-      } else {
-        d = new Date(e.date);
+      const date = LocalizedDatePipe.normalizeDate(e.date);
+      if (isNaN(date.getTime())) return;
+      const label = LocalizedDatePipe.formatDate(date, this.lang);
+      if (!dateMap.has(label)) {
+        dateMap.set(label, { date, value: 0 });
       }
-      const label = new LocalizedDatePipe().transform(d, {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
-      dateMap.set(label, (dateMap.get(label) || 0) + Number(e.value || 0));
+      dateMap.get(label)!.value += Number(e.value || 0);
     });
-    const dateEntries = Array.from(dateMap.entries()).sort((a, b) => {
-      return (
-        LocalizedDatePipe.parse(a[0], lang).getTime() -
-        LocalizedDatePipe.parse(b[0], lang).getTime()
-      );
-    });
+    // Sort by the actual date value
+    const dateEntries = Array.from(dateMap.entries()).sort((a, b) => a[1].date.getTime() - b[1].date.getTime());
     this.dateBarData = {
       labels: dateEntries.map((e) => e[0]),
-      datasets: [{ data: dateEntries.map((e) => e[1]), label: 'Total' }],
+      datasets: [{ data: dateEntries.map((e) => e[1].value), label: 'Total' }],
     };
     // Bar: by Description
     const descMap = this.groupSum(this.expenses, 'description');

@@ -15,6 +15,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { DateAdapter } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EditExpenseComponent } from '../expenses-edit/edit-expense.component';
+import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
 
 interface Expense {
   id: string;
@@ -163,16 +164,9 @@ export class ExpensesListComponent implements OnInit {
         field: 'date',
         valueFormatter: (params: any) => {
           if (!params.value) return '';
-          let date: Date;
-          if (params.value instanceof Timestamp) {
-            date = params.value.toDate();
-          } else if (typeof params.value === 'object' && params.value?.seconds !== undefined) {
-            date = new Date(params.value.seconds * 1000);
-          } else {
-            date = new Date(params.value);
-          }
+          const date = LocalizedDatePipe.normalizeDate(params.value);
           if (isNaN(date.getTime())) return params.value;
-          return new Intl.DateTimeFormat(lang).format(date);
+          return LocalizedDatePipe.formatDate(date, lang);
         }
       },
       {
@@ -368,39 +362,6 @@ export class ExpensesListComponent implements OnInit {
       }
     }
     return null;
-  }
-
-  async saveEdit() {
-    if (!this.editingExpense || this.editingExpenseIndex < 0 || !this.editForm) return;
-    if (this.editForm.invalid) {
-      this.editForm.markAllAsTouched();
-      return;
-    }
-    const user = this.auth.currentUser;
-    if (!user) return;
-    const formValue = this.editForm.value;
-    let dateToSave: any;
-    if (formValue.date instanceof Date) {
-      dateToSave = Timestamp.fromDate(formValue.date);
-    } else if (typeof formValue.date === 'string') {
-      const parsed = this.parseDateByLocale(formValue.date);
-      dateToSave = parsed ? Timestamp.fromDate(parsed) : Timestamp.fromDate(new Date());
-    } else {
-      dateToSave = formValue.date;
-    }
-    const updatedExpense = {
-      ...this.editingExpense,
-      ...formValue,
-      date: dateToSave
-    };
-    await this.firebaseService.updateForUser(user.uid, 'expenses', updatedExpense.id, updatedExpense);
-    this.expenses[this.editingExpenseIndex] = { ...updatedExpense };
-    const allIdx = this.allExpenses.findIndex(e => e.id === updatedExpense.id);
-    if (allIdx !== -1) {
-      this.allExpenses[allIdx] = { ...updatedExpense };
-    }
-    this.expenses = [...this.expenses];
-    this.closeEditModal();
   }
 
   async onFilterChange(filter: any) {

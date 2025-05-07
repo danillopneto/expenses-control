@@ -9,16 +9,37 @@ export class LocalizedDatePipe implements PipeTransform {
     return LocalizedDatePipe.transform(value, lang, format);
   }
 
+  /**
+   * Normalize any supported date input to a Date object.
+   */
+  static normalizeDate(value: any): Date {
+    if (!value) return new Date('');
+    if (value instanceof Date) return value;
+    if (typeof value === 'object' && value.toDate instanceof Function) {
+      return value.toDate(); // e.g., Firestore Timestamp
+    }
+    if (typeof value === 'object' && value.seconds !== undefined) {
+      return new Date(value.seconds * 1000);
+    }
+    if (typeof value === 'string' || typeof value === 'number') {
+      return new Date(value);
+    }
+    return new Date(value);
+  }
+
+  /**
+   * Format a Date object using Intl.DateTimeFormat.
+   */
+  static formatDate(date: Date, lang: string = 'en-US', format: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' }): string {
+    if (!(date instanceof Date) || isNaN(date.getTime())) return '';
+    const locale = lang.startsWith('pt') ? 'pt-BR' : lang;
+    return new Intl.DateTimeFormat(locale, format).format(date);
+  }
+
   static transform(value: any, lang: string = 'en-US', format: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' }): string {
     if (!value) return '';
-    let date: Date;
-    if (typeof value === 'object' && value.seconds) {
-      date = new Date(value.seconds * 1000);
-    } else {
-      date = new Date(value);
-    }
-    const locale = lang.startsWith('pt') ? 'pt-BR' : lang;
-    return date.toLocaleDateString(locale, format);
+    const date = LocalizedDatePipe.normalizeDate(value);
+    return LocalizedDatePipe.formatDate(date, lang, format);
   }
 
   static parse(dateStr: string, lang: string): Date {
