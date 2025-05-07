@@ -10,6 +10,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
 
 Chart.register(...registerables);
 Chart.register(ChartDataLabels);
@@ -111,14 +112,62 @@ export class DashboardComponent implements OnInit, OnDestroy {
     scales: {
       x: {
         ticks: {
-          callback: function(value, index, values) {
-            // 'this' refers to the ticks context
-            let label = value;
-            if (this.getLabelForValue) {
-              label = this.getLabelForValue(Number(value));
+          callback: function(value, index) {
+            // 'this' is the scale, so 'this.chart' is the chart instance
+            const labels = (this as any).chart?.data?.labels || [];
+            // If this is the date chart, format as date
+            if (labels === (this as any).chart?.options?.dateBarDataLabels) {
+              const lang = (this as any).chart?.options?.currentLang || 'en-US';
+              const label = labels[index];
+              const parsed = LocalizedDatePipe.parse(label as string, lang);
+              if (!isNaN(parsed.getTime())) {
+                return LocalizedDatePipe.transform(label, lang, { year: 'numeric', month: '2-digit', day: '2-digit' });
+              }
             }
-            return typeof label === 'string' && label.length > 15 ? label.slice(0, 15) + '…' : label;
+            // For other charts, return the label as string
+            return typeof value === 'string' ? value : labels[index] ?? value;
           }
+        }
+      }
+    }
+  };
+
+  public barDateChartOptions: ChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+        labels: {
+          generateLabels: (chart) => {
+            const original = Chart.defaults.plugins.legend.labels.generateLabels(chart) || [];
+            return original.map(label => ({
+              ...label,
+              text: typeof label.text === 'string' && label.text.length > 12
+                ? label.text.slice(0, 12) + '…'
+                : label.text
+            }));
+          }
+        }
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'end',
+        formatter: (value, ctx) => {
+          let lang = this.translate.currentLang || 'en-US';
+          if (lang.startsWith('pt')) lang = 'pt-BR';
+          const val = typeof value === 'number' ? value : 0;
+          return val.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        },
+        font: { weight: 'bold' }
+      }
+    },
+    layout: {
+      padding: 32
+    },
+    scales: {
+      x: {
+        ticks: {
+          callback: () => '' // will be set in ngOnInit and onLangChange
         }
       }
     }
@@ -157,8 +206,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.accountNameMap = Object.fromEntries(this.accounts.map(a => [a.id, a.name]));
     this.categoryNameMap = Object.fromEntries(this.categories.map(c => [c.id, c.name]));
     this.prepareCharts();
+    this.setBarDateChartTickCallback();
     this.langSub = this.translate.onLangChange.subscribe(() => {
       this.updateDonutChartOptions();
+      this.setBarDateChartTickCallback();
     });
     this.updateDonutChartOptions();
     Chart.register(this.chartTotalUpdatePlugin);
@@ -203,6 +254,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   }
 
+  setBarDateChartTickCallback() {
+    const lang = this.translate.currentLang || 'en-US';
+    (
+      this.barDateChartOptions.scales!['x']!.ticks as any
+    ).callback = function(value: string | number, index: number) {
+      const labels = (this as any).chart?.data?.labels || [];
+      const label = labels[index];
+      const parsed = LocalizedDatePipe.parse(label as string, lang);
+      if (!isNaN(parsed.getTime())) {
+        return LocalizedDatePipe.transform(label, lang, { year: 'numeric', month: '2-digit', day: '2-digit' });
+      }
+      return label;
+    };
+  }
+
   prepareCharts() {
     // Filter for current month
     const now = new Date();
@@ -218,6 +284,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return d.getMonth() === month && d.getFullYear() === year;
     });
     const monthlyExpenses = this.monthlyExpenses;
+    const lang = this.translate.currentLang || 'en-US';
+    // Use only 'pt-BR' for Portuguese, otherwise use the current lang
+    const locale = lang.startsWith('pt') ? 'pt-BR' : lang;
     // Group helpers
     const groupSum = (arr: any[], key: string) => {
       const map = new Map<string, number>();
@@ -258,24 +327,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
       } else {
         d = new Date(e.date);
       }
-      const label = d.toLocaleDateString();
+      const label = new LocalizedDatePipe().transform(d, { year: 'numeric', month: '2-digit', day: '2-digit' });
       dateMap.set(label, (dateMap.get(label) || 0) + Number(e.value || 0));
     });
+    // Sort dateMap by date using the pipe's parse method
+    const dateEntries = Array.from(dateMap.entries()).sort((a, b) => {
+      return LocalizedDatePipe.parse(a[0], lang).getTime() - LocalizedDatePipe.parse(b[0], lang).getTime();
+    });
     this.dateBarData = {
-      labels: Array.from(dateMap.keys()),
-      datasets: [{ data: Array.from(dateMap.values()), label: 'Total' }]
+      labels: dateEntries.map(e => e[0]),
+      datasets: [{ data: dateEntries.map(e => e[1]), label: 'Total' }]
     };
     // Bar: by Description
     const descMap = groupSum(monthlyExpenses, 'description');
+    // Sort descMap by value descending
+    const descEntries = Array.from(descMap.entries()).sort((a, b) => b[1] - a[1]);
     this.descriptionBarData = {
-      labels: Array.from(descMap.keys()),
-      datasets: [{ data: Array.from(descMap.values()), label: 'Total' }]
+      labels: descEntries.map(e => e[0]),
+      datasets: [{ data: descEntries.map(e => e[1]), label: 'Total' }]
     };
     // Bar: by Place
     const placeMap = groupSum(monthlyExpenses, 'place');
+    // Sort placeMap by value descending
+    const placeEntries = Array.from(placeMap.entries()).sort((a, b) => b[1] - a[1]);
     this.placeBarData = {
-      labels: Array.from(placeMap.keys()),
-      datasets: [{ data: Array.from(placeMap.values()), label: 'Total' }]
+      labels: placeEntries.map(e => e[0]),
+      datasets: [{ data: placeEntries.map(e => e[1]), label: 'Total' }]
     };
 
     setTimeout(() => {
