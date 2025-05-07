@@ -79,7 +79,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public barChartOptions: ChartOptions = {
     responsive: true,
     plugins: {
-      legend: { display: false },
+      legend: {
+        display: false,
+        labels: {
+          generateLabels: (chart) => {
+            const original = Chart.defaults.plugins.legend.labels.generateLabels(chart) || [];
+            return original.map(label => ({
+              ...label,
+              text: typeof label.text === 'string' && label.text.length > 12
+                ? label.text.slice(0, 12) + '…'
+                : label.text
+            }));
+          }
+        }
+      },
       datalabels: {
         anchor: 'end',
         align: 'end',
@@ -94,6 +107,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     layout: {
       padding: 32
+    },
+    scales: {
+      x: {
+        ticks: {
+          callback: function(value, index, values) {
+            // 'this' refers to the ticks context
+            let label = value;
+            if (this.getLabelForValue) {
+              label = this.getLabelForValue(Number(value));
+            }
+            return typeof label === 'string' && label.length > 15 ? label.slice(0, 15) + '…' : label;
+          }
+        }
+      }
     }
   };
 

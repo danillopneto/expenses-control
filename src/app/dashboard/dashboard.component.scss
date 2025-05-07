@@ -1,30 +1,29 @@
 .charts-grid-2col {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
-  justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .chart-item {
-  flex: 1 1 100%;
-  max-width: 100%;
-  background: #fff;
+  background: #fcfbff;
   border-radius: 8px;
   padding: 1.5rem 1rem 2rem 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 0;
-  min-height: 0;
 }
 
-@media (min-width: 768px) {
-  .chart-item {
-    flex: 1 1 calc(33.333% - 2rem);
-    max-width: calc(33.333% - 2rem);
-    justify-content: center;
-    align-items: center;
+/* Make bar charts occupy the entire row */
+.chart-item.bar-chart {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 900px) {
+  .charts-grid-2col {
+    grid-template-columns: 1fr;
   }
 }
 
