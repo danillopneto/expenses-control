@@ -51,6 +51,7 @@
     "TOTAL": "Total"
   },
   "DASHBOARD": {
-    "WELCOME": "Welcome {{name}}"
+    "WELCOME": "Welcome {{name}}",
+    "MONTHLY_SUMMARY": "Monthly Summary"
   }
 }

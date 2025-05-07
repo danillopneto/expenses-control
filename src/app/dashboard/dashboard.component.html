@@ -1,13 +1,54 @@
 <div class="dashboard-card">
   <h2 *ngIf="user">{{ 'DASHBOARD.WELCOME' | translate:{ name: (user.displayName || user.email) } }}</h2>
+</div>
 
-  <!-- Sample Doughnut Chart -->
-  <div style="display: block; max-width: 400px; margin: 2rem auto;">
-    <canvas baseChart
-      [data]="doughnutChartData"
-      [labels]="doughnutChartLabels"
-      [type]="doughnutChartType"
-      [options]="doughnutChartOptions">
-    </canvas>
+<div class="dashboard-card">
+  <h2>{{ 'DASHBOARD.MONTHLY_SUMMARY' | translate }}</h2>
+  <div class="charts-grid-2col">
+    <!-- Donut: Expenses by Account Used -->
+    <div class="chart-item">
+      <h3>{{ 'EXPENSES.ACCOUNT_USED' | translate }}</h3>
+      <canvas baseChart
+        [data]="accountDonutData"
+        [type]="'doughnut'"
+        [options]="donutChartOptions">
+      </canvas>
+    </div>
+    <!-- Donut: Expenses by Category -->
+    <div class="chart-item">
+      <h3>{{ 'EXPENSES.CATEGORY' | translate }}</h3>
+      <canvas baseChart
+        [data]="categoryDonutData"
+        [type]="'doughnut'"
+        [options]="donutChartOptions">
+      </canvas>
+    </div>
+    <!-- Bar: Expenses by Date -->
+    <div class="chart-item">
+      <h3>{{ 'EXPENSES.DATE' | translate }}</h3>
+      <canvas baseChart
+        [data]="dateBarData"
+        [type]="'bar'"
+        [options]="barChartOptions">
+      </canvas>
+    </div>
+    <!-- Bar: Expenses by Description -->
+    <div class="chart-item">
+      <h3>{{ 'EXPENSES.DESCRIPTION' | translate }}</h3>
+      <canvas baseChart
+        [data]="descriptionBarData"
+        [type]="'bar'"
+        [options]="barChartOptions">
+      </canvas>
+    </div>
+    <!-- Bar: Expenses by Place -->
+    <div class="chart-item">
+      <h3>{{ 'EXPENSES.PLACE' | translate }}</h3>
+      <canvas baseChart
+        [data]="placeBarData"
+        [type]="'bar'"
+        [options]="barChartOptions">
+      </canvas>
+    </div>
   </div>
 </div>

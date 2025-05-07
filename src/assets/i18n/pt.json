@@ -51,6 +51,7 @@
     "TOTAL": "Total"
   },
   "DASHBOARD": {
-    "WELCOME": "Bem-vindo {{name}}"
+    "WELCOME": "Bem-vindo {{name}}",
+    "MONTHLY_SUMMARY": "Resumo Mensal"
   }
 }
