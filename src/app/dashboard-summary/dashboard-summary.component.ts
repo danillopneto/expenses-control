@@ -5,6 +5,8 @@ import {
   OnInit,
   SimpleChanges,
   ChangeDetectorRef,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { ChartData, ChartOptions, Chart, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
@@ -20,7 +22,7 @@ Chart.register(ChartDataLabels);
 @Component({
   selector: 'app-dashboard-summary',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, TranslateModule, CurrencyFormatPipe, LocalizedDatePipe],
+  imports: [CommonModule, BaseChartDirective, TranslateModule],
   templateUrl: './dashboard-summary.component.html',
   styleUrls: ['./dashboard-summary.component.scss'],
 })
@@ -197,15 +199,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
     },
   };
 
-  // Summary metrics
-  totalSpend: number = 0;
-  avgPerDay: number = 0;
-  mostExpensiveItem: { description: string; value: number } | null = null;
-  mostExpensiveDay: { date: Date; value: number } | null = null;
-  mostExpensiveCategory: { category: string; value: number } | null = null;
-  placeMostValue: { place: string; value: number } | null = null;
-  placeMostCount: { place: string; count: number } | null = null;
-
   constructor(public translate: TranslateService, private cdr: ChangeDetectorRef) {
     this.lang = this.translate.currentLang || 'pt-BR';
     if (this.lang.startsWith('pt')) this.lang = 'pt-BR';
@@ -223,7 +216,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
   }
 
   ngOnInit(): void {
-    // Defensive: only call prepareCharts if translate is defined
     if (this.translate) {
       this.prepareCharts();
     }
@@ -238,19 +230,9 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       !this.accounts ||
       this.accounts.length == 0
     ) {
-      // Reset summary metrics if no data
-      this.totalSpend = 0;
-      this.avgPerDay = 0;
-      this.mostExpensiveItem = null;
-      this.mostExpensiveDay = null;
-      this.mostExpensiveCategory = null;
-      this.placeMostValue = null;
-      this.placeMostCount = null;
       return;
     }
-    // Use the expenses as-is, do NOT filter for current month here
     const lang = this.lang;
-    // Build id → name maps if accounts/categories provided
     const accountNameMap = Object.fromEntries(
       (this.accounts || []).map((a) => [a.id, a.name])
     );
@@ -258,71 +240,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       (this.categories || []).map((c) => [c.id, c.name])
     );
 
-    // --- SUMMARY METRICS ---
-    // Total spend
-    this.totalSpend = this.expenses.reduce((sum, e) => sum + Number(e.value || 0), 0);
-
-    // Average spent per day
-    const uniqueDays = new Set(
-      this.expenses.map((e) => {
-        const d = LocalizedDatePipe.normalizeDate(e.date);
-        return d.toISOString().slice(0, 10);
-      })
-    );
-    this.avgPerDay = uniqueDays.size > 0 ? this.totalSpend / uniqueDays.size : 0;
-
-    // Most expensive item
-    const maxItem = this.expenses.reduce((max, e) => (Number(e.value || 0) > Number(max.value || 0) ? e : max), this.expenses[0]);
-    this.mostExpensiveItem = maxItem ? { description: maxItem.description, value: Number(maxItem.value) } : null;
-
-    // Most expensive day
-    const dayMap = new Map<string, { value: number, date: Date }>();
-    this.expenses.forEach((e) => {
-      const d = LocalizedDatePipe.normalizeDate(e.date);
-      const iso = d.toISOString().slice(0, 10);
-      const prev = dayMap.get(iso);
-      if (!prev) {
-        dayMap.set(iso, { value: Number(e.value || 0), date: d });
-      } else {
-        // Sum the value, but keep the earliest date for that day
-        dayMap.set(iso, { value: prev.value + Number(e.value || 0), date: prev.date });
-      }
-    });
-    const dayEntries = Array.from(dayMap.entries());
-    const maxDay = dayEntries.length > 0 ? dayEntries.reduce((max, curr) => (curr[1].value > max[1].value ? curr : max)) : null;
-    this.mostExpensiveDay = maxDay ? { date: maxDay[1].date, value: maxDay[1].value } : null;
-
-    // Most expensive category
-    const summaryCatMap = new Map<string, number>();
-    this.expenses.forEach((e) => {
-      const name = categoryNameMap[e.category] || e.category || 'Other';
-      summaryCatMap.set(name, (summaryCatMap.get(name) || 0) + Number(e.value || 0));
-    });
-    const catEntries = Array.from(summaryCatMap.entries());
-    const maxCat = catEntries.length > 0 ? catEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
-    this.mostExpensiveCategory = maxCat ? { category: maxCat[0], value: maxCat[1] } : null;
-
-    // Place with most expenses (by value)
-    const summaryPlaceMap = new Map<string, number>();
-    this.expenses.forEach((e) => {
-      const place = e.place || 'Other';
-      summaryPlaceMap.set(place, (summaryPlaceMap.get(place) || 0) + Number(e.value || 0));
-    });
-    const summaryPlaceEntries = Array.from(summaryPlaceMap.entries());
-    const maxPlaceValue = summaryPlaceEntries.length > 0 ? summaryPlaceEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
-    this.placeMostValue = maxPlaceValue ? { place: maxPlaceValue[0], value: maxPlaceValue[1] } : null;
-
-    // Place with most expenses (by count)
-    const summaryPlaceCountMap = new Map<string, number>();
-    this.expenses.forEach((e) => {
-      const place = e.place || 'Other';
-      summaryPlaceCountMap.set(place, (summaryPlaceCountMap.get(place) || 0) + 1);
-    });
-    const placeCountEntries = Array.from(summaryPlaceCountMap.entries());
-    const maxPlaceCount = placeCountEntries.length > 0 ? placeCountEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
-    this.placeMostCount = maxPlaceCount ? { place: maxPlaceCount[0], count: maxPlaceCount[1] } : null;
-
-    // Donut: by Account
     const accMap = new Map<string, number>();
     this.expenses.forEach((e) => {
       const name = accountNameMap[e.accountUsed] || e.accountUsed || 'Other';
@@ -332,7 +249,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       labels: Array.from(accMap.keys()),
       datasets: [{ data: Array.from(accMap.values()) }],
     };
-    // Donut: by Category
     const chartCatMap = new Map<string, number>();
     this.expenses.forEach((e) => {
       const name = categoryNameMap[e.category] || e.category || 'Other';
@@ -342,7 +258,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       labels: Array.from(chartCatMap.keys()),
       datasets: [{ data: Array.from(chartCatMap.values()) }],
     };
-    // Bar: by Date
     const dateMap = new Map<string, { date: Date; value: number }>();
     this.expenses.forEach((e) => {
       const date = LocalizedDatePipe.normalizeDate(e.date);
@@ -353,7 +268,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       }
       dateMap.get(label)!.value += Number(e.value || 0);
     });
-    // Sort by the actual date value
     const dateEntries = Array.from(dateMap.entries()).sort(
       (a, b) => a[1].date.getTime() - b[1].date.getTime()
     );
@@ -361,7 +275,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       labels: dateEntries.map((e) => e[0]),
       datasets: [{ data: dateEntries.map((e) => e[1].value), label: 'Total' }],
     };
-    // Bar: by Description
     const descMap = this.groupSum(this.expenses, 'description');
     const descEntries = Array.from(descMap.entries()).sort(
       (a, b) => b[1] - a[1]
@@ -370,7 +283,6 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       labels: descEntries.map((e) => e[0]),
       datasets: [{ data: descEntries.map((e) => e[1]), label: 'Total' }],
     };
-    // Bar: by Place
     const placeMap = this.groupSum(this.expenses, 'place');
     const placeEntries = Array.from(placeMap.entries()).sort(
       (a, b) => b[1] - a[1]

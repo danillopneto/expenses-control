@@ -65,6 +65,7 @@
     "MOST_EXPENSIVE_DAY": "Dia Mais Caro",
     "MOST_EXPENSIVE_CATEGORY": "Categoria Mais Cara",
     "PLACE_MOST_VALUE": "Local (Maior Valor)",
-    "PLACE_MOST_COUNT": "Local (Mais Despesas)"
+    "PLACE_MOST_COUNT": "Local (Mais Despesas)",
+    "ACCOUNT_MOST_USED": "Conta Mais Utilizada"
   }
 }

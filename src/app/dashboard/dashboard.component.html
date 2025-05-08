@@ -11,10 +11,17 @@
       "DASHBOARD.MONTHLY_SUMMARY" | translate
     }}</span>
   </mat-expansion-panel-header>
-  <app-dashboard-summary
-    *ngIf="monthlySummaryExpanded && expenses && accounts && categories"
-    [expenses]="expenses"
-    [accounts]="accounts"
-    [categories]="categories"
-  ></app-dashboard-summary>
+  <div *ngIf="monthlySummaryExpanded && expenses && accounts && categories">
+    <app-dashboard-summary-header
+      [expenses]="expenses"
+      [accounts]="accounts"
+      [categories]="categories"
+      [lang]="lang"
+    ></app-dashboard-summary-header>
+    <app-dashboard-summary
+      [expenses]="expenses"
+      [accounts]="accounts"
+      [categories]="categories"
+    ></app-dashboard-summary>
+  </div>
 </mat-expansion-panel>

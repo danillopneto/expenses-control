@@ -65,6 +65,7 @@
     "MOST_EXPENSIVE_DAY": "Most Expensive Day",
     "MOST_EXPENSIVE_CATEGORY": "Most Expensive Category",
     "PLACE_MOST_VALUE": "Place (Most Value)",
-    "PLACE_MOST_COUNT": "Place (Most Count)"
+    "PLACE_MOST_COUNT": "Place (Most Count)",
+    "ACCOUNT_MOST_USED": "Most Used Account"
   }
 }

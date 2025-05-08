@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { DashboardSummaryComponent } from '../dashboard-summary/dashboard-summary.component';
 import { Firestore, collection, getDocs, query, orderBy, where } from '@angular/fire/firestore';
+import { DashboardSummaryHeaderComponent } from '../dashboard-summary-header/dashboard-summary-header.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,6 +20,7 @@ import { Firestore, collection, getDocs, query, orderBy, where } from '@angular/
     MatCardModule,
     MatExpansionModule,
     DashboardSummaryComponent,
+    DashboardSummaryHeaderComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
@@ -32,6 +34,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   expenses: any[] = [];
   accounts: any[] = [];
   categories: any[] = [];
+
+  lang: string = 'en';
 
   monthlySummaryExpanded = true;
   toggleMonthlySummary() {
@@ -64,10 +68,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       id: doc.id,
       ...doc.data(),
     }));
+    this.accounts = [...this.accounts];
     this.categories = categoriesSnap.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
     }));
+    this.categories = [...this.categories];
+    this.lang = this.translate.currentLang || 'en';
     this.langSub = this.translate.onLangChange.subscribe(() => {});
   }
 

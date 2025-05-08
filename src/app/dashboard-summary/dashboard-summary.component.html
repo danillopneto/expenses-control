@@ -1,33 +1,3 @@
-<div class="summary-metrics-grid">
-  <div class="summary-metric">
-    <div class="label">{{ 'DASHBOARD.TOTAL_SPEND' | translate }}</div>
-    <div class="value">{{ totalSpend | currencyFormat }}</div>
-  </div>
-  <div class="summary-metric">
-    <div class="label">{{ 'DASHBOARD.AVG_PER_DAY' | translate }}</div>
-    <div class="value">{{ avgPerDay | currencyFormat }}</div>
-  </div>
-  <div class="summary-metric">
-    <div class="label">{{ 'DASHBOARD.MOST_EXPENSIVE_ITEM' | translate }}</div>
-    <div class="value">{{ mostExpensiveItem?.description }}<br><span *ngIf="mostExpensiveItem">{{ mostExpensiveItem.value | currencyFormat }}</span></div>
-  </div>
-  <div class="summary-metric">
-    <div class="label">{{ 'DASHBOARD.MOST_EXPENSIVE_DAY' | translate }}</div>
-    <div class="value">{{ mostExpensiveDay?.date | localizedDate:undefined:lang }}<br><span *ngIf="mostExpensiveDay">{{ mostExpensiveDay.value | currencyFormat }}</span></div>
-  </div>
-  <div class="summary-metric">
-    <div class="label">{{ 'DASHBOARD.MOST_EXPENSIVE_CATEGORY' | translate }}</div>
-    <div class="value">{{ mostExpensiveCategory?.category }}<br><span *ngIf="mostExpensiveCategory">{{ mostExpensiveCategory.value | currencyFormat }}</span></div>
-  </div>
-  <div class="summary-metric">
-    <div class="label">{{ 'DASHBOARD.PLACE_MOST_VALUE' | translate }}</div>
-    <div class="value">{{ placeMostValue?.place }}<br><span *ngIf="placeMostValue">{{ placeMostValue.value | currencyFormat }}</span></div>
-  </div>
-  <div class="summary-metric">
-    <div class="label">{{ 'DASHBOARD.PLACE_MOST_COUNT' | translate }}</div>
-    <div class="value">{{ placeMostCount?.place }}<br><span *ngIf="placeMostCount">{{ placeMostCount.count }}</span></div>
-  </div>
-</div>
 <div class="charts-grid-2col">
   <div class="chart-item">
     <h3>{{ 'DASHBOARD.BY_ACCOUNT' | translate }}</h3>
