@@ -52,20 +52,25 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       legend: { position: 'top' },
       datalabels: {
         color: '#333',
-        font: { weight: 'bold', size: 16 },
+        font: { weight: 'bold', size: 11 }, // smaller font
+        display: 'auto', // let Chart.js hide overlapping labels
         anchor: 'center',
         align: 'center',
         formatter: (value, ctx) => {
           let lang = this.lang;
           if (lang.startsWith('pt')) lang = 'pt-BR';
+          let currency = 'USD';
+          if (lang === 'pt-BR') currency = 'BRL';
           const val = typeof value === 'number' ? value : 0;
           return val.toLocaleString(lang, {
+            style: 'currency',
+            currency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
         },
         clamp: true,
-        clip: false,
+        clip: true,
       },
     },
     layout: { padding: 16 },
@@ -93,16 +98,23 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       datalabels: {
         anchor: 'end',
         align: 'end',
+        font: { weight: 'bold', size: 11 }, // smaller font
+        display: 'auto', // let Chart.js hide overlapping labels
         formatter: (value, ctx) => {
           let lang = this.lang;
           if (lang.startsWith('pt')) lang = 'pt-BR';
+          let currency = 'USD';
+          if (lang === 'pt-BR') currency = 'BRL';
           const val = typeof value === 'number' ? value : 0;
           return val.toLocaleString(lang, {
+            style: 'currency',
+            currency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
         },
-        font: { weight: 'bold' },
+        clamp: true,
+        clip: true,
       },
     },
     layout: {
@@ -111,6 +123,9 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
     scales: {
       x: {
         ticks: {
+          autoSkip: true,
+          maxTicksLimit: 10,
+          minRotation: 30,
           callback: function (value, index) {
             // 'this' is the scale, so 'this.chart' is the chart instance
             const labels = (this as any).chart?.data?.labels || [];
@@ -144,16 +159,23 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       datalabels: {
         anchor: 'end',
         align: 'end',
+        font: { weight: 'bold', size: 11 }, // smaller font
+        display: 'auto', // let Chart.js hide overlapping labels
         formatter: (value, ctx) => {
           let lang = this.lang;
           if (lang.startsWith('pt')) lang = 'pt-BR';
+          let currency = 'USD';
+          if (lang === 'pt-BR') currency = 'BRL';
           const val = typeof value === 'number' ? value : 0;
           return val.toLocaleString(lang, {
+            style: 'currency',
+            currency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
         },
-        font: { weight: 'bold' },
+        clamp: true,
+        clip: true,
       },
     },
     layout: {
@@ -162,6 +184,9 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
     scales: {
       x: {
         ticks: {
+          autoSkip: true,
+          maxTicksLimit: 10,
+          minRotation: 30,
           callback: function (value, index) {
             // Just return the label as-is, since it's already formatted
             const labels = (this as any).chart?.data?.labels || [];
@@ -176,7 +201,7 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
   totalSpend: number = 0;
   avgPerDay: number = 0;
   mostExpensiveItem: { description: string; value: number } | null = null;
-  mostExpensiveDay: { date: Date | string; value: number } | null = null;
+  mostExpensiveDay: { date: Date; value: number } | null = null;
   mostExpensiveCategory: { category: string; value: number } | null = null;
   placeMostValue: { place: string; value: number } | null = null;
   placeMostCount: { place: string; count: number } | null = null;
@@ -251,15 +276,21 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
     this.mostExpensiveItem = maxItem ? { description: maxItem.description, value: Number(maxItem.value) } : null;
 
     // Most expensive day
-    const dayMap = new Map<string, number>();
+    const dayMap = new Map<string, { value: number, date: Date }>();
     this.expenses.forEach((e) => {
       const d = LocalizedDatePipe.normalizeDate(e.date);
       const iso = d.toISOString().slice(0, 10);
-      dayMap.set(iso, (dayMap.get(iso) || 0) + Number(e.value || 0));
+      const prev = dayMap.get(iso);
+      if (!prev) {
+        dayMap.set(iso, { value: Number(e.value || 0), date: d });
+      } else {
+        // Sum the value, but keep the earliest date for that day
+        dayMap.set(iso, { value: prev.value + Number(e.value || 0), date: prev.date });
+      }
     });
     const dayEntries = Array.from(dayMap.entries());
-    const maxDay = dayEntries.length > 0 ? dayEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
-    this.mostExpensiveDay = maxDay ? { date: maxDay[0], value: maxDay[1] } : null;
+    const maxDay = dayEntries.length > 0 ? dayEntries.reduce((max, curr) => (curr[1].value > max[1].value ? curr : max)) : null;
+    this.mostExpensiveDay = maxDay ? { date: maxDay[1].date, value: maxDay[1].value } : null;
 
     // Most expensive category
     const summaryCatMap = new Map<string, number>();
