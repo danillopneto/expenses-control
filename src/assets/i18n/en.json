@@ -52,7 +52,6 @@
   },
   "DASHBOARD": {
     "WELCOME": "Welcome {{name}}",
-    "MONTHLY_SUMMARY": "Monthly Summary",
     "BY_ACCOUNT": "By Account",
     "BY_CATEGORY": "By Category",
     "BY_DATE": "By Date",

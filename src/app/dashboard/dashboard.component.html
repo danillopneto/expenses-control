@@ -5,10 +5,19 @@
     }}
   </h2>
 </div>
+<app-expenses-filter
+  [categories]="categories"
+  [accounts]="accounts"
+  [initialDateFrom]="initialDateFrom"
+  [initialDateTo]="initialDateTo"
+  [expanded]="true"
+  (filterChange)="onFilterChange($event)"
+  style="margin-bottom: 2rem; display: block"
+></app-expenses-filter>
 <mat-expansion-panel [(expanded)]="monthlySummaryExpanded">
   <mat-expansion-panel-header class="dashboard-summary-header">
     <span class="dashboard-summary-title">{{
-      "DASHBOARD.MONTHLY_SUMMARY" | translate
+      "DASHBOARD.SUMMARY" | translate
     }}</span>
   </mat-expansion-panel-header>
   <div *ngIf="monthlySummaryExpanded && expenses && accounts && categories">
