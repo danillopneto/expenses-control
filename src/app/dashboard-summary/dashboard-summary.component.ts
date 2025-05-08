@@ -4,12 +4,15 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { ChartData, ChartOptions, Chart, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
+import { CommonModule } from '@angular/common';
+import { CurrencyFormatPipe } from '../pipes/currency-format.pipe';
 
 Chart.register(...registerables);
 Chart.register(ChartDataLabels);
@@ -17,7 +20,7 @@ Chart.register(ChartDataLabels);
 @Component({
   selector: 'app-dashboard-summary',
   standalone: true,
-  imports: [BaseChartDirective, TranslateModule],
+  imports: [CommonModule, BaseChartDirective, TranslateModule, CurrencyFormatPipe, LocalizedDatePipe],
   templateUrl: './dashboard-summary.component.html',
   styleUrls: ['./dashboard-summary.component.scss'],
 })
@@ -26,7 +29,7 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
   @Input() accounts: any[] = [];
   @Input() categories: any[] = [];
 
-  private lang: string;
+  public lang: string;
 
   accountDonutData: ChartData<'doughnut'> = {
     labels: [],
@@ -169,12 +172,22 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
     },
   };
 
-  constructor(public translate: TranslateService) {
+  // Summary metrics
+  totalSpend: number = 0;
+  avgPerDay: number = 0;
+  mostExpensiveItem: { description: string; value: number } | null = null;
+  mostExpensiveDay: { date: Date | string; value: number } | null = null;
+  mostExpensiveCategory: { category: string; value: number } | null = null;
+  placeMostValue: { place: string; value: number } | null = null;
+  placeMostCount: { place: string; count: number } | null = null;
+
+  constructor(public translate: TranslateService, private cdr: ChangeDetectorRef) {
     this.lang = this.translate.currentLang || 'pt-BR';
     if (this.lang.startsWith('pt')) this.lang = 'pt-BR';
     this.translate.onLangChange.subscribe((event) => {
       this.lang = event.lang.startsWith('pt') ? 'pt-BR' : event.lang;
       this.prepareCharts();
+      this.cdr.markForCheck();
     });
   }
 
@@ -200,6 +213,14 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       !this.accounts ||
       this.accounts.length == 0
     ) {
+      // Reset summary metrics if no data
+      this.totalSpend = 0;
+      this.avgPerDay = 0;
+      this.mostExpensiveItem = null;
+      this.mostExpensiveDay = null;
+      this.mostExpensiveCategory = null;
+      this.placeMostValue = null;
+      this.placeMostCount = null;
       return;
     }
     // Use the expenses as-is, do NOT filter for current month here
@@ -211,6 +232,65 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
     const categoryNameMap = Object.fromEntries(
       (this.categories || []).map((c) => [c.id, c.name])
     );
+
+    // --- SUMMARY METRICS ---
+    // Total spend
+    this.totalSpend = this.expenses.reduce((sum, e) => sum + Number(e.value || 0), 0);
+
+    // Average spent per day
+    const uniqueDays = new Set(
+      this.expenses.map((e) => {
+        const d = LocalizedDatePipe.normalizeDate(e.date);
+        return d.toISOString().slice(0, 10);
+      })
+    );
+    this.avgPerDay = uniqueDays.size > 0 ? this.totalSpend / uniqueDays.size : 0;
+
+    // Most expensive item
+    const maxItem = this.expenses.reduce((max, e) => (Number(e.value || 0) > Number(max.value || 0) ? e : max), this.expenses[0]);
+    this.mostExpensiveItem = maxItem ? { description: maxItem.description, value: Number(maxItem.value) } : null;
+
+    // Most expensive day
+    const dayMap = new Map<string, number>();
+    this.expenses.forEach((e) => {
+      const d = LocalizedDatePipe.normalizeDate(e.date);
+      const iso = d.toISOString().slice(0, 10);
+      dayMap.set(iso, (dayMap.get(iso) || 0) + Number(e.value || 0));
+    });
+    const dayEntries = Array.from(dayMap.entries());
+    const maxDay = dayEntries.length > 0 ? dayEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
+    this.mostExpensiveDay = maxDay ? { date: maxDay[0], value: maxDay[1] } : null;
+
+    // Most expensive category
+    const summaryCatMap = new Map<string, number>();
+    this.expenses.forEach((e) => {
+      const name = categoryNameMap[e.category] || e.category || 'Other';
+      summaryCatMap.set(name, (summaryCatMap.get(name) || 0) + Number(e.value || 0));
+    });
+    const catEntries = Array.from(summaryCatMap.entries());
+    const maxCat = catEntries.length > 0 ? catEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
+    this.mostExpensiveCategory = maxCat ? { category: maxCat[0], value: maxCat[1] } : null;
+
+    // Place with most expenses (by value)
+    const summaryPlaceMap = new Map<string, number>();
+    this.expenses.forEach((e) => {
+      const place = e.place || 'Other';
+      summaryPlaceMap.set(place, (summaryPlaceMap.get(place) || 0) + Number(e.value || 0));
+    });
+    const summaryPlaceEntries = Array.from(summaryPlaceMap.entries());
+    const maxPlaceValue = summaryPlaceEntries.length > 0 ? summaryPlaceEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
+    this.placeMostValue = maxPlaceValue ? { place: maxPlaceValue[0], value: maxPlaceValue[1] } : null;
+
+    // Place with most expenses (by count)
+    const summaryPlaceCountMap = new Map<string, number>();
+    this.expenses.forEach((e) => {
+      const place = e.place || 'Other';
+      summaryPlaceCountMap.set(place, (summaryPlaceCountMap.get(place) || 0) + 1);
+    });
+    const placeCountEntries = Array.from(summaryPlaceCountMap.entries());
+    const maxPlaceCount = placeCountEntries.length > 0 ? placeCountEntries.reduce((max, curr) => (curr[1] > max[1] ? curr : max)) : null;
+    this.placeMostCount = maxPlaceCount ? { place: maxPlaceCount[0], count: maxPlaceCount[1] } : null;
+
     // Donut: by Account
     const accMap = new Map<string, number>();
     this.expenses.forEach((e) => {
@@ -222,14 +302,14 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       datasets: [{ data: Array.from(accMap.values()) }],
     };
     // Donut: by Category
-    const catMap = new Map<string, number>();
+    const chartCatMap = new Map<string, number>();
     this.expenses.forEach((e) => {
       const name = categoryNameMap[e.category] || e.category || 'Other';
-      catMap.set(name, (catMap.get(name) || 0) + Number(e.value || 0));
+      chartCatMap.set(name, (chartCatMap.get(name) || 0) + Number(e.value || 0));
     });
     this.categoryDonutData = {
-      labels: Array.from(catMap.keys()),
-      datasets: [{ data: Array.from(catMap.values()) }],
+      labels: Array.from(chartCatMap.keys()),
+      datasets: [{ data: Array.from(chartCatMap.values()) }],
     };
     // Bar: by Date
     const dateMap = new Map<string, { date: Date; value: number }>();

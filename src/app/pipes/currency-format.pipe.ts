@@ -3,7 +3,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Pipe({
   name: 'currencyFormat',
-  standalone: true
+  standalone: true,
+  pure: false
 })
 export class CurrencyFormatPipe implements PipeTransform {
   private translate = inject(TranslateService);
@@ -12,7 +13,15 @@ export class CurrencyFormatPipe implements PipeTransform {
     if (value == null || value === '') return '';
     let lang = this.translate.currentLang || 'pt-BR';
     if (lang.startsWith('pt')) lang = 'pt-BR';
+    let currency = 'USD';
+    if (lang === 'pt-BR') currency = 'BRL';
+    // You can add more language/currency mappings here if needed
     const num = typeof value === 'number' ? value : Number(value);
-    return num.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return num.toLocaleString(lang, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
 }

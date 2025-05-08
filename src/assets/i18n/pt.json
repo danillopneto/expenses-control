@@ -57,6 +57,14 @@
     "BY_CATEGORY": "Por Categoria",
     "BY_DATE": "Por Data",
     "BY_DESCRIPTION": "Por Descrição",
-    "BY_PLACE": "Por Local"
+    "BY_PLACE": "Por Local",
+    "SUMMARY": "Resumo",
+    "TOTAL_SPEND": "Gasto Total",
+    "AVG_PER_DAY": "Média por Dia",
+    "MOST_EXPENSIVE_ITEM": "Item Mais Caro",
+    "MOST_EXPENSIVE_DAY": "Dia Mais Caro",
+    "MOST_EXPENSIVE_CATEGORY": "Categoria Mais Cara",
+    "PLACE_MOST_VALUE": "Local (Maior Valor)",
+    "PLACE_MOST_COUNT": "Local (Mais Despesas)"
   }
 }
