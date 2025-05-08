@@ -10,25 +10,34 @@
       </button>
     </ng-container>
     <div class="navbar-spacer"></div>
-    <div class="navbar-actions">
-      <ng-container *ngIf="authChecked">
-        <ng-container *ngIf="isAuthenticated()">
-          <button mat-button [routerLink]="['/expenses']" routerLinkActive="active" (click)="menuOpen = false">
-            <mat-icon>add_circle</mat-icon> {{ 'NAV.ADD_EXPENSE' | translate }}
+    <div class="navbar-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+      <ng-container *ngIf="authChecked && isAuthenticated()">
+        <button mat-button [routerLink]="['/expenses']" routerLinkActive="active" (click)="menuOpen = false">
+          <mat-icon>add_circle</mat-icon> {{ 'NAV.ADD_EXPENSE' | translate }}
+        </button>
+        <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active" (click)="menuOpen = false">
+          <mat-icon>list_alt</mat-icon> {{ 'NAV.EXPENSES_LIST' | translate }}
+        </button>
+        <!-- Settings icon with divider -->
+        <span class="navbar-divider" style="border-left:1px solid #ccc; height:24px; margin:0 8px;"></span>
+        <button mat-icon-button [routerLink]="['/settings']" routerLinkActive="active" (click)="menuOpen = false" aria-label="Settings">
+          <mat-icon>settings</mat-icon>
+        </button>
+        <!-- User menu -->
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu">
+          <mat-icon>account_circle</mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item disabled style="opacity:1; font-weight:600;">
+            {{ auth.currentUser?.displayName || auth.currentUser?.email }}
           </button>
-          <button mat-button [routerLink]="['/expenses-list']" routerLinkActive="active" (click)="menuOpen = false">
-            <mat-icon>list_alt</mat-icon> {{ 'NAV.EXPENSES_LIST' | translate }}
+          <mat-divider></mat-divider>
+          <button mat-menu-item color="warn" (click)="logout()">
+            <mat-icon>logout</mat-icon> Logout
           </button>
-          <button mat-button [routerLink]="['/settings']" routerLinkActive="active" (click)="menuOpen = false">
-            <mat-icon>settings</mat-icon> {{ 'NAV.SETTINGS' | translate }}
-          </button>
-        </ng-container>
-        <ng-container *ngIf="isAuthenticated()">
-          <button mat-button color="warn" (click)="logout(); menuOpen = false">
-            <mat-icon>logout</mat-icon> {{ 'NAV.LOGOUT' | translate }}
-          </button>
-        </ng-container>
+        </mat-menu>
       </ng-container>
+      <!-- Language selector remains -->
       <mat-menu #langMenu="matMenu">
         <button mat-menu-item *ngFor="let lang of languages" (click)="changeLang(lang.code)">
           <img [src]="lang.code === 'en' ? 'assets/flags/us.svg' : 'assets/flags/br.svg'" width="24" height="16" style="vertical-align:middle;"> <span style="margin-left: 8px">{{ lang.label }}</span>

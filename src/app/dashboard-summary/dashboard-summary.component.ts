@@ -192,7 +192,14 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
   }
 
   prepareCharts() {
-    if (!this.expenses || this.expenses.length === 0) {
+    if (
+      !this.expenses ||
+      this.expenses.length === 0 ||
+      !this.categories ||
+      this.categories.length == 0 ||
+      !this.accounts ||
+      this.accounts.length == 0
+    ) {
       return;
     }
     // Use the expenses as-is, do NOT filter for current month here
@@ -225,7 +232,7 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       datasets: [{ data: Array.from(catMap.values()) }],
     };
     // Bar: by Date
-    const dateMap = new Map<string, { date: Date, value: number }>();
+    const dateMap = new Map<string, { date: Date; value: number }>();
     this.expenses.forEach((e) => {
       const date = LocalizedDatePipe.normalizeDate(e.date);
       if (isNaN(date.getTime())) return;
@@ -236,7 +243,9 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
       dateMap.get(label)!.value += Number(e.value || 0);
     });
     // Sort by the actual date value
-    const dateEntries = Array.from(dateMap.entries()).sort((a, b) => a[1].date.getTime() - b[1].date.getTime());
+    const dateEntries = Array.from(dateMap.entries()).sort(
+      (a, b) => a[1].date.getTime() - b[1].date.getTime()
+    );
     this.dateBarData = {
       labels: dateEntries.map((e) => e[0]),
       datasets: [{ data: dateEntries.map((e) => e[1].value), label: 'Total' }],

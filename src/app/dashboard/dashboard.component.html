@@ -12,7 +12,7 @@
     }}</span>
   </mat-expansion-panel-header>
   <app-dashboard-summary
-    *ngIf="monthlySummaryExpanded"
+    *ngIf="monthlySummaryExpanded && expenses && accounts && categories"
     [expenses]="expenses"
     [accounts]="accounts"
     [categories]="categories"
