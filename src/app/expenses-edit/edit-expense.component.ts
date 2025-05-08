@@ -11,6 +11,7 @@ import { MatDatepickerToggle } from '@angular/material/datepicker';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { DateAdapter } from '@angular/material/core';
+import { Expense, Category, Account } from '../interfaces/models';
 
 @Component({
   selector: 'app-edit-expense',
@@ -33,8 +34,8 @@ import { DateAdapter } from '@angular/material/core';
 })
 export class EditExpenseComponent {
   editForm: FormGroup;
-  categories: any[];
-  accounts: any[];
+  categories: Category[];
+  accounts: Account[];
 
   constructor(
     public dialogRef: MatDialogRef<EditExpenseComponent>,

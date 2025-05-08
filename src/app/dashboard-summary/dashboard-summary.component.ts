@@ -15,6 +15,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
 import { CommonModule } from '@angular/common';
 import { CurrencyFormatPipe } from '../pipes/currency-format.pipe';
+import { Expense, Category, Account } from '../interfaces/models';
 
 Chart.register(...registerables);
 Chart.register(ChartDataLabels);
@@ -27,9 +28,9 @@ Chart.register(ChartDataLabels);
   styleUrls: ['./dashboard-summary.component.scss'],
 })
 export class DashboardSummaryComponent implements OnChanges, OnInit {
-  @Input() expenses: any[] = [];
-  @Input() accounts: any[] = [];
-  @Input() categories: any[] = [];
+  @Input() expenses: Expense[] = [];
+  @Input() accounts: Account[] = [];
+  @Input() categories: Category[] = [];
 
   public lang: string;
 

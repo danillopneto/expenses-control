@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter } from '@angular/material/core';
+import { Category, Account } from '../interfaces/models';
 
 @Component({
   selector: 'app-expenses-filter',
@@ -33,8 +34,8 @@ import { MatNativeDateModule, DateAdapter } from '@angular/material/core';
   styleUrls: ['./expenses-filter.component.scss']
 })
 export class ExpensesFilterComponent {
-  @Input() categories: { id: string, name: string }[] = [];
-  @Input() accounts: { id: string, name: string }[] = [];
+  @Input() categories: Category[] = [];
+  @Input() accounts: Account[] = [];
   @Input() initialDateFrom?: Date;
   @Input() initialDateTo?: Date;
   @Input() expanded: boolean = true;

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyFormatPipe } from '../pipes/currency-format.pipe';
 import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
+import { Expense, Category, Account } from '../interfaces/models';
 
 @Component({
   selector: 'app-dashboard-summary-header',
@@ -17,9 +18,9 @@ import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
   styleUrls: ['./dashboard-summary-header.component.scss'],
 })
 export class DashboardSummaryHeaderComponent implements OnChanges {
-  @Input() expenses: any[] = [];
-  @Input() categories: any[] = [];
-  @Input() accounts: any[] = [];
+  @Input() expenses: Expense[] = [];
+  @Input() categories: Category[] = [];
+  @Input() accounts: Account[] = [];
   @Input() lang: string = 'en';
 
   totalSpend: number = 0;
@@ -152,7 +153,7 @@ export class DashboardSummaryHeaderComponent implements OnChanges {
     // Calculate most used account
     const summaryAccountCountMap = new Map<string, number>();
     this.expenses.forEach((e) => {
-      const acc = e.accountUsed || e.account || 'Other';
+      const acc = e.accountUsed || e['account'] || 'Other';
       summaryAccountCountMap.set(
         acc,
         (summaryAccountCountMap.get(acc) || 0) + 1

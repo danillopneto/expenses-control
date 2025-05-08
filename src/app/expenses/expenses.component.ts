@@ -20,16 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ColDef } from 'ag-grid-community';
 import { DatepickerCellEditor } from '../shared/components/datepicker-cell-editor.component';
 import { NumericCellEditor } from '../shared/components/numeric-cell-editor.component';
-
-interface Category {
-  id?: string;
-  name: string;
-}
-
-interface Account {
-  id?: string;
-  name: string;
-}
+import { Expense, Category, Account } from '../interfaces/models';
 
 @Component({
   selector: 'app-expenses',

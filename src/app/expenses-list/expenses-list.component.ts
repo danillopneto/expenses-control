@@ -16,18 +16,7 @@ import { DateAdapter } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EditExpenseComponent } from '../expenses-edit/edit-expense.component';
 import { LocalizedDatePipe } from '../pipes/localized-date.pipe';
-
-interface Expense {
-  id: string;
-  date?: string | { seconds: number } | Date;
-  description?: string;
-  value?: number;
-  installments?: number;
-  place?: string;
-  category?: string;
-  accountUsed?: string;
-  [key: string]: any;
-}
+import { Expense, Category, Account } from '../interfaces/models';
 
 @Component({
   selector: 'app-expenses-list',
@@ -130,7 +119,20 @@ export class ExpensesListComponent implements OnInit {
     const expensesRef = collection(this.firestore, `users/${user.uid}/expenses`);
     const q = query(expensesRef, orderBy('date', 'desc'));
     const querySnapshot = await getDocs(q);
-    this.allExpenses = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    this.allExpenses = querySnapshot.docs.map(doc => {
+      const data = doc.data() as Partial<Expense>;
+      return {
+        id: doc.id,
+        date: data.date ?? '',
+        description: data.description ?? '',
+        value: data.value ?? 0,
+        installments: data.installments ?? 1,
+        place: data.place ?? '',
+        category: data.category ?? '',
+        accountUsed: data.accountUsed ?? '',
+        ...data // in case there are extra fields
+      };
+    });
     // Detect if date field is a Firestore Timestamp
     if (this.allExpenses.length > 0) {
       const firstDate = this.allExpenses[0].date;
@@ -393,7 +395,20 @@ export class ExpensesListComponent implements OnInit {
     q.push(orderBy('date', 'desc'));
     let queryRef = q.length ? query(expensesRef, ...q) : expensesRef;
     const querySnapshot = await getDocs(queryRef);
-    let results: Expense[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    let results: Expense[] = querySnapshot.docs.map(doc => {
+      const data = doc.data() as Partial<Expense>;
+      return {
+        id: doc.id,
+        date: data.date ?? '',
+        description: data.description ?? '',
+        value: data.value ?? 0,
+        installments: data.installments ?? 1,
+        place: data.place ?? '',
+        category: data.category ?? '',
+        accountUsed: data.accountUsed ?? '',
+        ...data
+      };
+    });
     if (this.filter.description) {
       results = results.filter(e => e.description?.toLowerCase().includes(this.filter.description.toLowerCase()));
     }
