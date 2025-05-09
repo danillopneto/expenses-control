@@ -65,6 +65,7 @@
     "MOST_EXPENSIVE_CATEGORY": "Categoria Mais Cara",
     "PLACE_MOST_VALUE": "Local (Maior Valor)",
     "PLACE_MOST_COUNT": "Local (Mais Despesas)",
-    "ACCOUNT_MOST_USED": "Conta Mais Utilizada"
+    "ACCOUNT_MOST_USED": "Conta Mais Utilizada",
+    "NO_EXPENSES": "Sem despesas"
   }
 }

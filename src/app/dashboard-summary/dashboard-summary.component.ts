@@ -211,8 +211,24 @@ export class DashboardSummaryComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (
+      (changes['expenses'] && this.expenses && this.expenses.length === 0) ||
+      (changes['accounts'] && this.accounts && this.accounts.length === 0) ||
+      (changes['categories'] && this.categories && this.categories.length === 0)
+    ) {
+      // Clear all chart data if no results
+      this.accountDonutData = { labels: [], datasets: [{ data: [] }] };
+      this.categoryDonutData = { labels: [], datasets: [{ data: [] }] };
+      this.dateBarData = { labels: [], datasets: [{ data: [] }] };
+      this.descriptionBarData = { labels: [], datasets: [{ data: [] }] };
+      this.placeBarData = { labels: [], datasets: [{ data: [] }] };
+      // Force chart update
+      this.cdr.detectChanges();
+      return;
+    }
     if (changes['expenses'] || changes['accounts'] || changes['categories']) {
       this.prepareCharts();
+      this.cdr.detectChanges();
     }
   }
 

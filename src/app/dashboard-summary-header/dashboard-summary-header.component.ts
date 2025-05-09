@@ -33,6 +33,18 @@ export class DashboardSummaryHeaderComponent implements OnChanges {
   accountMostUsed: { account: string; count: number } | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (!this.expenses || this.expenses.length === 0 || !this.categories || this.categories.length === 0 || !this.accounts || this.accounts.length === 0) {
+      // Clear all summary fields if any input is empty
+      this.totalSpend = 0;
+      this.avgPerDay = 0;
+      this.mostExpensiveItem = null;
+      this.mostExpensiveDay = null;
+      this.mostExpensiveCategory = null;
+      this.placeMostValue = null;
+      this.placeMostCount = null;
+      this.accountMostUsed = null;
+      return;
+    }
     this.calculateSummary();
   }
 

@@ -20,7 +20,15 @@
       "DASHBOARD.SUMMARY" | translate
     }}</span>
   </mat-expansion-panel-header>
-  <div *ngIf="monthlySummaryExpanded && expenses && accounts && categories">
+  <div
+    *ngIf="
+      monthlySummaryExpanded &&
+      expenses &&
+      expenses.length &&
+      accounts &&
+      categories
+    ; else noExpensesBlock"
+  >
     <app-dashboard-summary-header
       [expenses]="expenses"
       [accounts]="accounts"
@@ -33,4 +41,11 @@
       [categories]="categories"
     ></app-dashboard-summary>
   </div>
+  <ng-template #noExpensesBlock>
+    <div class="no-expenses-message">
+      <span style="font-size:2rem; color:#888; display:block; margin:2rem 0; text-align:center; font-weight:500;">
+        {{ 'DASHBOARD.NO_EXPENSES' | translate }}
+      </span>
+    </div>
+  </ng-template>
 </mat-expansion-panel>

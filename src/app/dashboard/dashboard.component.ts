@@ -47,6 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   initialDateFrom: Date;
   initialDateTo: Date;
   filter: any = {};
+  loading: boolean = false;
 
   constructor() {
     // Default to current month
@@ -69,7 +70,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async onFilterChange(filter: any) {
     this.filter = filter;
+    this.loading = true;
     await this.queryExpensesWithFilter(filter);
+    this.loading = false;
   }
 
   async loadAccountsAndCategories(uid: string) {
@@ -80,16 +83,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.accounts = accountsSnap.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
-    }));
+    })).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     this.categories = categoriesSnap.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
-    }));
+    })).sort((a, b) => (a.name || a.description || '').localeCompare(b.name || b.description || ''));
   }
 
   async queryExpensesWithFilter(filter: any) {
+    this.loading = true;
     const user = await this.auth.currentUser;
-    if (!user) return;
+    if (!user) {
+      this.loading = false;
+      return;
+    }
     let expensesRef = collection(this.firestore, `users/${user.uid}/expenses`);
     let q: any[] = [];
     let dateFrom = filter.dateFrom;
@@ -103,10 +110,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
       toDate.setHours(23, 59, 59, 999);
       q.push(where('date', '<=', Timestamp.fromDate(toDate)));
     }
+    if (filter.category) {
+      q.push(where('category', '==', filter.category));
+    }
+    if (filter.accountUsed) {
+      q.push(where('accountUsed', '==', filter.accountUsed));
+    }
     q.push(orderBy('date', 'desc'));
     const queryRef = q.length ? query(expensesRef, ...q) : expensesRef;
     const expensesSnap = await getDocs(queryRef);
-    this.expenses = expensesSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+    let results = expensesSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+    if (filter.description) {
+      results = results.filter(e => e.description?.toLowerCase().includes(filter.description.toLowerCase()));
+    }
+    if (filter.place) {
+      results = results.filter(e => e.place?.toLowerCase().includes(filter.place.toLowerCase()));
+    }
+
+    this.expenses = results;
+    this.loading = false;
   }
 
   ngOnDestroy() {
